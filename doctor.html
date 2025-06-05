@@ -1,0 +1,2479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>养老院管理系统 - 医生工作台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="care-plan.css">
+    <style>
+        /* Care Plan Layout Styles */
+        .care-plan-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+        }
+
+        .care-plan-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .care-plan-main {
+            background: white;
+            border-radius: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .care-plan-form {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 20px 0;
+        }
+
+        .step-content-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        /* Patient Overview Styles */
+        .patient-overview {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .patient-basic-info h3 {
+            margin: 0;
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+
+        .room-info {
+            color: var(--gray);
+            margin: 5px 0 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .care-level-tag {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .patient-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: var(--light);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .stat-item .label {
+            color: var(--gray);
+        }
+
+        .stat-item .value {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        /* AI Analysis Panel Styles */
+        .ai-analysis-panel {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .panel-header i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .analysis-section {
+            margin-bottom: 12px;
+        }
+
+        .analysis-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .analysis-section h4 {
+            color: var(--dark);
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+        }
+
+        .analysis-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .analysis-section li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray);
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .analysis-section li:last-child {
+            margin-bottom: 0;
+        }
+
+        .analysis-section li i {
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+
+        /* Step Navigation Styles */
+        .step-navigation {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .nav-btn.prev {
+            background: var(--light);
+            color: var(--gray);
+        }
+
+        .nav-btn.next {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Step Progress Styles */
+        .step-progress {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .progress {
+            position: absolute;
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .step-indicators {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .step span {
+            color: var(--gray);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .step.active .step-number {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .step.active span {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        /* Care Items Grid Styles */
+        .care-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .care-item-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .care-item-card:hover {
+            transform: translateY(-2px);
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .care-item-card input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .card-content i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .text-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-content span {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .text-content small {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        /* AI Message Styles */
+        .ai-message {
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-message i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .message-content p {
+            margin: 0;
+            color: var(--dark);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Summary Styles */
+        .plan-summary {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .summary-section h5 {
+            color: var(--dark);
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .summary-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .summary-section li {
+            color: var(--gray);
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .summary-section li:before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+
+        .notes-section {
+            margin-top: 20px;
+        }
+
+        .care-plan-notes {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Medication Schedule Styles */
+        .medication-schedule {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .med-time-group {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .time-label {
+            color: var(--dark);
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .med-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .med-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .med-item i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .med-info {
+            flex: 1;
+        }
+
+        .med-info h4 {
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .med-info p {
+            margin: 5px 0 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .med-confirm {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .med-confirm input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+        }
+
+        .med-confirm span {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .care-plan-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .care-plan-sidebar {
+                height: auto;
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .step-indicators {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .step {
+                flex: 0 0 calc(33.33% - 10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>泸州AI智能养老平台</h1>
+                    <p>AI医生助手 · 提升诊疗效率</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="role-selector">
+                        <select id="role-switcher" onchange="switchRole(this.value)">
+                            <option value="nurse">护理员</option>
+                            <option value="recorder">信息录入员</option>
+                            <option value="doctor" selected>医生</option>
+                            <option value="finance">财务</option>
+                            
+                            <option value="director">院长</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="ai-assistant">
+                <div class="assistant-header">
+                    <div class="assistant-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="assistant-info">
+                        <h2>AI助手</h2>
+                        <p>您的智能医疗助手</p>
+                    </div>
+                </div>
+
+                <div class="urgent-cases">
+                    <h4><i class="fas fa-exclamation-circle"></i> 紧急病例</h4>
+                    <ul class="case-list">
+                        <li class="case-item">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>张老太 - 308室 - 血压异常</span>
+                        </li>
+                        <li class="case-item">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>李大爷 - 210室 - 发烧38.5℃</span>
+                        </li>
+                        <li class="case-item">
+                            <i class="fas fa-procedures"></i>
+                            <span>王奶奶 - 315室 - 摔倒扭伤</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="work-entries">
+                    <h4><i class="fas fa-door-open"></i> 工作入口</h4>
+                    <div class="entry-grid">
+                        <div class="entry-card" id="orders-entry">
+                            <i class="fas fa-notes-medical"></i>
+                            <h5>医嘱管理</h5>
+                        </div>
+                        <div class="entry-card" id="vitals-entry">
+                            <i class="fas fa-heartbeat"></i>
+                            <h5>生命体征监控</h5>
+                        </div>
+                        <div class="entry-card" id="risk-entry">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h5>风险评估</h5>
+                        </div>
+                        <div class="entry-card" id="care-plan-entry">
+                            <i class="fas fa-tasks"></i>
+                            <h5>护理计划</h5>
+                        </div>
+                        <div class="entry-card" id="health-records-entry">
+                            <i class="fas fa-folder-open"></i>
+                            <h5>健康档案</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workflow-container">
+                <div class="welcome-panel" id="welcome-panel">
+                    <div class="welcome-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="welcome-message">
+                        <h2>您好，医生！</h2>
+                        <p>欢迎使用泸州AI智能养老平台。我是您的AI医疗助手，将协助您完成诊疗工作。</p>
+                        <p>请从左侧选择您要开始的工作，或者查看<span class="highlight">紧急病例</span>列表。</p>
+                        <p>使用AI医疗助手，诊疗工作效率可提升<span class="highlight">35%</span>，诊断准确率提高<span class="highlight">25%</span>。</p>
+                    </div>
+                </div>
+
+                <div class="workflow-view" id="workflow-view">
+                    <!-- 工作流程内容将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchRole(role) {
+            const rolePages = {
+                'recorder': 'AI工作流助手.html',
+                'nurse': 'nurse.html',
+                'doctor': 'doctor.html',
+                'finance': 'finance.html',
+                'logistics': 'logistics.html',
+                'director': 'director.html'
+            };
+            
+            if (role !== 'doctor') {
+                window.location.href = rolePages[role];
+            }
+        }
+
+        // 工作入口点击事件处理
+        document.querySelectorAll('.entry-card').forEach(card => {
+            card.addEventListener('click', function() {
+                showWorkflow(this.id);
+            });
+        });
+
+        function showWorkflow(entryId) {
+            const welcomePanel = document.getElementById('welcome-panel');
+            const workflowView = document.getElementById('workflow-view');
+            
+            welcomePanel.style.display = 'none';
+            workflowView.style.display = 'flex';
+            
+            // 根据不同入口加载对应的工作流程
+            switch(entryId) {
+                case 'orders-entry':
+                    loadOrdersWorkflow();
+                    break;
+                case 'vitals-entry':
+                    loadVitalsWorkflow();
+                    break;
+                case 'risk-entry':
+                    loadRiskWorkflow();
+                    break;
+                case 'care-plan-entry':
+                    loadCarePlanWorkflow();
+                    break;
+                case 'health-records-entry':
+                    loadHealthRecordsWorkflow();
+                    break;
+            }
+        }
+
+        // 添加新的工作流程加载函数
+        function loadOrdersWorkflow() {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>医嘱管理</h2>
+                        <p>AI助手将协助您完成医嘱开具与管理</p>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="patient-search-section">
+                        <div class="search-header">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="搜索患者姓名、房间号或病历号..." id="patientSearch">
+                            </div>
+                        </div>
+                        <div class="patient-stats">
+                            <div class="stat-card urgent">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div class="stat-info">
+                                    <h4>需紧急处理</h4>
+                                    <p>3人</p>
+                                </div>
+                            </div>
+                            <div class="stat-card warning">
+                                <i class="fas fa-clock"></i>
+                                <div class="stat-info">
+                                    <h4>待复查</h4>
+                                    <p>15人</p>
+                                </div>
+                            </div>
+                            <div class="stat-card info">
+                                <i class="fas fa-pills"></i>
+                                <div class="stat-info">
+                                    <h4>待开药</h4>
+                                    <p>8人</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="patient-lists">
+                        <div class="list-section urgent-list">
+                            <h3><i class="fas fa-exclamation-circle"></i> 需紧急处理</h3>
+                            <div class="patient-cards">
+                                <div class="patient-card" onclick="showPatientDetail('张老太', '308')">
+                                    <div class="patient-info">
+                                        <div class="patient-header">
+                                            <h4>张老太 <span class="room-tag">308室</span></h4>
+                                            <span class="alert-tag">血压异常</span>
+                                        </div>
+                                        <p class="vital-signs">血压: 160/95 mmHg ⚠️</p>
+                                        <p class="last-check">最近检查: 10分钟前</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                                <div class="patient-card" onclick="showPatientDetail('李大爷', '210')">
+                                    <div class="patient-info">
+                                        <div class="patient-header">
+                                            <h4>李大爷 <span class="room-tag">210室</span></h4>
+                                            <span class="alert-tag">发烧</span>
+                                        </div>
+                                        <p class="vital-signs">体温: 38.5°C ⚠️</p>
+                                        <p class="last-check">最近检查: 30分钟前</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-section review-list">
+                            <h3><i class="fas fa-clock"></i> 待复查患者</h3>
+                            <div class="patient-cards">
+                                <div class="patient-card" onclick="showPatientDetail('王奶奶', '315')">
+                                    <div class="patient-info">
+                                        <div class="patient-header">
+                                            <h4>王奶奶 <span class="room-tag">315室</span></h4>
+                                            <span class="review-tag">复查</span>
+                                        </div>
+                                        <p class="condition">关节炎治疗复查</p>
+                                        <p class="last-check">上次就诊: 7天前</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-section medicine-list">
+                            <h3><i class="fas fa-pills"></i> 待开药患者</h3>
+                            <div class="patient-cards">
+                                <div class="patient-card" onclick="showPatientDetail('赵大爷', '412')">
+                                    <div class="patient-info">
+                                        <div class="patient-header">
+                                            <h4>赵大爷 <span class="room-tag">412室</span></h4>
+                                            <span class="medicine-tag">待开药</span>
+                                        </div>
+                                        <p class="medicine-info">降压药续方</p>
+                                        <p class="last-check">当前药量: 剩余2天</p>
+                                    </div>
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加必要的样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .patient-search-section {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+
+                .search-header {
+                    margin-bottom: 20px;
+                }
+
+                .search-box {
+                    position: relative;
+                }
+
+                .search-box i {
+                    position: absolute;
+                    left: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--gray);
+                }
+
+                .search-box input {
+                    width: 100%;
+                    padding: 12px 15px 12px 45px;
+                    border: 2px solid #eee;
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;
+                }
+
+                .search-box input:focus {
+                    border-color: var(--primary);
+                    outline: none;
+                }
+
+                .patient-stats {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 15px;
+                }
+
+                .stat-card {
+                    background: var(--light);
+                    border-radius: 10px;
+                    padding: 15px;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+
+                .stat-card i {
+                    font-size: 1.8rem;
+                }
+
+                .stat-card.urgent i { color: #e74c3c; }
+                .stat-card.warning i { color: #f39c12; }
+                .stat-card.info i { color: #3498db; }
+
+                .stat-info h4 {
+                    margin: 0;
+                    font-size: 0.9rem;
+                    color: var(--gray);
+                }
+
+                .stat-info p {
+                    margin: 5px 0 0;
+                    font-size: 1.2rem;
+                    font-weight: bold;
+                    color: var(--dark);
+                }
+
+                .patient-lists {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                }
+
+                .list-section {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 20px;
+                }
+
+                .list-section h3 {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 15px;
+                    color: var(--dark);
+                }
+
+                .list-section h3 i {
+                    font-size: 1.2rem;
+                }
+
+                .urgent-list h3 i { color: #e74c3c; }
+                .review-list h3 i { color: #f39c12; }
+                .medicine-list h3 i { color: #3498db; }
+
+                .patient-cards {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 20px;
+                }
+
+                .patient-card {
+                    background: var(--light);
+                    border-radius: 10px;
+                    padding: 15px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .patient-card:hover {
+                    transform: translateX(5px);
+                    background: rgba(33, 150, 243, 0.1);
+                }
+
+                .patient-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 8px;
+                }
+
+                .patient-header h4 {
+                    margin: 0;
+                    color: var(--dark);
+                    font-size: 1.1rem;
+                }
+
+                .room-tag {
+                    background: #eee;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    color: var(--gray);
+                    font-weight: normal;
+                }
+
+                .alert-tag {
+                    background: rgba(231, 76, 60, 0.1);
+                    color: #e74c3c;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                }
+
+                .review-tag {
+                    background: rgba(243, 156, 18, 0.1);
+                    color: #f39c12;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                }
+
+                .medicine-tag {
+                    background: rgba(52, 152, 219, 0.1);
+                    color: #3498db;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                }
+
+                .vital-signs, .condition, .medicine-info {
+                    margin: 5px 0;
+                    color: var(--dark);
+                    font-size: 0.95rem;
+                }
+
+                .last-check {
+                    margin: 5px 0 0;
+                    color: var(--gray);
+                    font-size: 0.85rem;
+                }
+
+                .fas.fa-chevron-right {
+                    color: var(--gray);
+                    transition: transform 0.3s ease;
+                }
+
+                .patient-card:hover .fas.fa-chevron-right {
+                    transform: translateX(5px);
+                    color: var(--primary);
+                }
+
+                @media (max-width: 768px) {
+                    .patient-cards {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function loadVitalsWorkflow() {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>生命体征监控</h2>
+                        <p>AI助手将协助您进行生命体征数据分析</p>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="patient-selection">
+                        <div class="section-header">
+                            <i class="fas fa-heartbeat"></i>
+                            <h3>实时监控</h3>
+                        </div>
+                        <p class="section-desc">
+                            查看老人生命体征实时数据和趋势分析。<br>
+                            <span class="highlight">红色标记</span>表示异常指标。
+                        </p>
+                    </div>
+                    <div class="workflow-content">
+                        <!-- 生命体征监控内容 -->
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadRiskWorkflow() {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>风险评估</h2>
+                        <p>AI助手将协助您进行健康风险评估</p>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="patient-selection">
+                        <div class="section-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>风险筛查</h3>
+                        </div>
+                        <p class="section-desc">
+                            进行老人健康风险评估和干预方案制定。<br>
+                            <span class="highlight">红色标记</span>表示高风险项目。
+                        </p>
+                    </div>
+                    <div class="workflow-content">
+                        <!-- 风险评估内容 -->
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadCarePlanWorkflow() {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>护理计划</h2>
+                        <p>AI助手将协助您制定和审核护理计划</p>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="workflow-selection">
+                        <div class="selection-grid">
+                            <div class="selection-card" onclick="showCarePlanList('new')">
+                                <div class="selection-icon">
+                                    <i class="fas fa-file-medical"></i>
+                                </div>
+                                <div class="selection-info">
+                                    <h3>制定新护理计划</h3>
+                                    <p>为新入院或状态变化的老人制定护理计划</p>
+                                    <div class="stat-badge urgent">5人待制定</div>
+                                </div>
+                            </div>
+                            <div class="selection-card" onclick="showCarePlanList('update')">
+                                <div class="selection-icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <div class="selection-info">
+                                    <h3>更新护理计划</h3>
+                                    <p>定期更新和调整现有护理计划</p>
+                                    <div class="stat-badge warning">12人待更新</div>
+                                </div>
+                            </div>
+                            <div class="selection-card" onclick="showCarePlanList('active')">
+                                <div class="selection-icon">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </div>
+                                <div class="selection-info">
+                                    <h3>执行中护理计划</h3>
+                                    <p>查看和监督正在执行的护理计划</p>
+                                    <div class="stat-badge info">28人执行中</div>
+                                </div>
+                            </div>
+                            <div class="selection-card" onclick="showCarePlanList('template')">
+                                <div class="selection-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div class="selection-info">
+                                    <h3>护理计划模板</h3>
+                                    <p>管理和使用标准护理计划模板</p>
+                                    <div class="stat-badge">8个模板</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加选择界面的样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .workflow-selection {
+                    padding: 20px;
+                    height: 100%;
+                }
+
+                .selection-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+
+                .selection-card {
+                    background: white;
+                    border-radius: 15px;
+                    padding: 25px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    border: 2px solid transparent;
+                    display: flex;
+                    gap: 20px;
+                    align-items: flex-start;
+                }
+
+                .selection-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+                    border-color: var(--primary);
+                }
+
+                .selection-icon {
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(135deg, var(--primary), var(--accent));
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                .selection-icon i {
+                    font-size: 1.8rem;
+                    color: white;
+                }
+
+                .selection-info {
+                    flex: 1;
+                }
+
+                .selection-info h3 {
+                    color: var(--dark);
+                    margin: 0 0 10px 0;
+                    font-size: 1.2rem;
+                }
+
+                .selection-info p {
+                    color: var(--gray);
+                    margin: 0 0 15px 0;
+                    font-size: 0.95rem;
+                    line-height: 1.5;
+                }
+
+                .stat-badge {
+                    display: inline-block;
+                    padding: 5px 12px;
+                    border-radius: 20px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    background: var(--light);
+                    color: var(--dark);
+                }
+
+                .stat-badge.urgent {
+                    background: rgba(231, 76, 60, 0.1);
+                    color: #e74c3c;
+                }
+
+                .stat-badge.warning {
+                    background: rgba(243, 156, 18, 0.1);
+                    color: #f39c12;
+                }
+
+                .stat-badge.info {
+                    background: rgba(46, 204, 113, 0.1);
+                    color: #27ae60;
+                }
+
+                @media (max-width: 768px) {
+                    .selection-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .selection-card {
+                        padding: 20px;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function showCarePlanList(type) {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>${getCarePlanTitle(type)}</h2>
+                        <p>AI助手将协助您${getCarePlanDescription(type)}</p>
+                    </div>
+                    <button class="action-btn btn-prev" onclick="loadCarePlanWorkflow()">
+                        <i class="fas fa-arrow-left"></i> 返回选择
+                    </button>
+                </div>
+                <div class="workflow-body">
+                    <div class="patient-search-section">
+                        <div class="search-header">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="搜索患者姓名、房间号或护理级别..." id="patientSearch">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="patient-lists">
+                        ${getCarePlanListContent(type)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getCarePlanTitle(type) {
+            const titles = {
+                'new': '制定新护理计划',
+                'update': '更新护理计划',
+                'active': '执行中护理计划',
+                'template': '护理计划模板'
+            };
+            return titles[type] || '护理计划';
+        }
+
+        function getCarePlanDescription(type) {
+            const descriptions = {
+                'new': '制定新的护理计划',
+                'update': '更新现有护理计划',
+                'active': '监督执行中的护理计划',
+                'template': '管理护理计划模板'
+            };
+            return descriptions[type] || '管理护理计划';
+        }
+
+        function getCarePlanListContent(type) {
+            if (type === 'template') {
+                return `
+                    <div class="template-list">
+                        <div class="template-card">
+                            <div class="template-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            <div class="template-info">
+                                <h4>特护级别模板</h4>
+                                <p>适用于需要全面护理的老人</p>
+                            </div>
+                        </div>
+                        <!-- 更多模板 -->
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="list-section">
+                    <div class="patient-cards">
+                        <div class="patient-card" onclick="showCarePlanDetail('陈老太', '405', '特护')">
+                            <div class="patient-info">
+                                <div class="patient-header">
+                                    <h4>陈老太 <span class="room-tag">405室</span></h4>
+                                    <span class="alert-tag">新入院</span>
+                                </div>
+                                <p class="care-level">护理等级：特护</p>
+                                <p class="last-check">入院时间：2小时前</p>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <!-- 更多患者卡片 -->
+                    </div>
+                </div>
+            `;
+        }
+
+        function showCarePlanDetail(name, room, careLevel) {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="care-plan-page">
+                    <div class="workflow-header">
+                        <div class="workflow-title">
+                            <h2>${name} - ${room}室</h2>
+                            <p>护理计划制定</p>
+                        </div>
+                        <button class="action-btn btn-prev" onclick="loadCarePlanWorkflow()">
+                            <i class="fas fa-arrow-left"></i> 返回列表
+                        </button>
+                    </div>
+                    <div class="care-plan-layout">
+                        <div class="care-plan-sidebar">
+                            <div class="patient-overview">
+                                <div class="patient-basic-info">
+                                    <h3>${name}</h3>
+                                    <p class="room-info">${room}室 <span class="care-level-tag">${careLevel}</span></p>
+                                    <div class="patient-stats">
+                                        <div class="stat-item">
+                                            <span class="label">年龄：</span>
+                                            <span class="value">75岁</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">入院：</span>
+                                            <span class="value">2024-03-15</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">疾病：</span>
+                                            <span class="value">高血压</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">护理：</span>
+                                            <span class="value">特护级</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ai-analysis-panel">
+                                <div class="panel-header">
+                                    <i class="fas fa-robot"></i>
+                                    <h3>AI评估建议</h3>
+                                </div>
+                                <div class="analysis-content">
+                                    <div class="analysis-section">
+                                        <h4>身体状况</h4>
+                                        <ul>
+                                            <li><i class="fas fa-circle"></i>活动能力受限</li>
+                                            <li><i class="fas fa-circle"></i>需要协助进食</li>
+                                            <li><i class="fas fa-circle"></i>存在跌倒风险</li>
+                                        </ul>
+                                    </div>
+                                    <div class="analysis-section">
+                                        <h4>护理重点</h4>
+                                        <ul>
+                                            <li><i class="fas fa-check"></i>预防压疮</li>
+                                            <li><i class="fas fa-check"></i>跌倒预防</li>
+                                            <li><i class="fas fa-check"></i>饮食护理</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="care-plan-main">
+                            <div class="care-plan-form">
+                                <div class="step-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress" id="stepProgress"></div>
+                                    </div>
+                                    <div class="step-indicators">
+                                        <div class="step active" data-step="1">
+                                            <div class="step-number">1</div>
+                                            <span>基础护理</span>
+                                        </div>
+                                        <div class="step" data-step="2">
+                                            <div class="step-number">2</div>
+                                            <span>专项护理</span>
+                                        </div>
+                                        <div class="step" data-step="3">
+                                            <div class="step-number">3</div>
+                                            <span>用药计划</span>
+                                        </div>
+                                        <div class="step" data-step="4">
+                                            <div class="step-number">4</div>
+                                            <span>心理关怀</span>
+                                        </div>
+                                        <div class="step" data-step="5">
+                                            <div class="step-number">5</div>
+                                            <span>确认提交</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-content-container">
+                                    <div class="step-content active" id="step1">
+                                        <div class="ai-message">
+                                            <i class="fas fa-robot"></i>
+                                            <div class="message-content">
+                                                <p>让我们从基础护理开始。根据老人的情况，我建议以下护理项目：</p>
+                                            </div>
+                                        </div>
+                                        <div class="care-items-grid">
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="basic-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-bed"></i>
+                                                    <div class="text-content">
+                                                        <span>晨间护理</span>
+                                                        <small>7:00-8:00</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="basic-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-utensils"></i>
+                                                    <div class="text-content">
+                                                        <span>三餐协助</span>
+                                                        <small>8:00/12:00/18:00</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="basic-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-toilet"></i>
+                                                    <div class="text-content">
+                                                        <span>如厕协助</span>
+                                                        <small>需要时</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="basic-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-moon"></i>
+                                                    <div class="text-content">
+                                                        <span>睡前护理</span>
+                                                        <small>21:00-22:00</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="step-content" id="step2">
+                                        <div class="ai-message">
+                                            <i class="fas fa-robot"></i>
+                                            <div class="message-content">
+                                                <p>考虑到老人的活动能力受限，建议以下专项护理措施：</p>
+                                            </div>
+                                        </div>
+                                        <div class="care-items-grid">
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="special-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-exchange-alt"></i>
+                                                    <div class="text-content">
+                                                        <span>体位护理</span>
+                                                        <small>每2小时1次</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="special-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-band-aid"></i>
+                                                    <div class="text-content">
+                                                        <span>压疮预防</span>
+                                                        <small>每4小时评估</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="special-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-walking"></i>
+                                                    <div class="text-content">
+                                                        <span>活动协助</span>
+                                                        <small>每日3次</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="special-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-shield-alt"></i>
+                                                    <div class="text-content">
+                                                        <span>安全防护</span>
+                                                        <small>全天持续</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="step-content" id="step3">
+                                        <div class="ai-message">
+                                            <i class="fas fa-robot"></i>
+                                            <div class="message-content">
+                                                <p>根据医嘱，我为老人制定了以下用药计划：</p>
+                                            </div>
+                                        </div>
+                                        <div class="medication-schedule">
+                                            <div class="med-time-group">
+                                                <div class="time-label">晨间用药 (8:00)</div>
+                                                <div class="med-items">
+                                                    <div class="med-item">
+                                                        <i class="fas fa-pills"></i>
+                                                        <div class="med-info">
+                                                            <h4>络活喜</h4>
+                                                            <p>5mg/片 早餐后服用</p>
+                                                        </div>
+                                                        <label class="med-confirm">
+                                                            <input type="checkbox" name="morning-med">
+                                                            <span>确认</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="med-time-group">
+                                                <div class="time-label">午间用药 (14:00)</div>
+                                                <div class="med-items">
+                                                    <div class="med-item">
+                                                        <i class="fas fa-pills"></i>
+                                                        <div class="med-info">
+                                                            <h4>络活喜</h4>
+                                                            <p>5mg/片 午餐后服用</p>
+                                                        </div>
+                                                        <label class="med-confirm">
+                                                            <input type="checkbox" name="noon-med">
+                                                            <span>确认</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="med-time-group">
+                                                <div class="time-label">晚间用药 (20:00)</div>
+                                                <div class="med-items">
+                                                    <div class="med-item">
+                                                        <i class="fas fa-pills"></i>
+                                                        <div class="med-info">
+                                                            <h4>络活喜</h4>
+                                                            <p>5mg/片 晚餐后服用</p>
+                                                        </div>
+                                                        <label class="med-confirm">
+                                                            <input type="checkbox" name="evening-med">
+                                                            <span>确认</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="step-content" id="step4">
+                                        <div class="ai-message">
+                                            <i class="fas fa-robot"></i>
+                                            <div class="message-content">
+                                                <p>老人的心理健康同样重要，建议以下心理关怀措施：</p>
+                                            </div>
+                                        </div>
+                                        <div class="care-items-grid">
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="mental-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-heart"></i>
+                                                    <div class="text-content">
+                                                        <span>情绪疏导</span>
+                                                        <small>每日2次</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="mental-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-comments"></i>
+                                                    <div class="text-content">
+                                                        <span>陪伴交流</span>
+                                                        <small>每日1小时</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            <label class="care-item-card">
+                                                <input type="checkbox" name="mental-care">
+                                                <div class="card-content">
+                                                    <i class="fas fa-book-reader"></i>
+                                                    <div class="text-content">
+                                                        <span>阅读陪伴</span>
+                                                        <small>每晚30分钟</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="step-content" id="step5">
+                                        <div class="ai-message">
+                                            <i class="fas fa-robot"></i>
+                                            <div class="message-content">
+                                                <p>请确认所有护理计划内容，如有需要可添加补充说明：</p>
+                                            </div>
+                                        </div>
+                                        <div class="plan-summary">
+                                            <h4>护理计划总结</h4>
+                                            <div class="summary-content">
+                                                <!-- 这里将通过JavaScript动态填充选择的内容 -->
+                                            </div>
+                                        </div>
+                                        <div class="notes-section">
+                                            <h4>补充说明</h4>
+                                            <textarea class="care-plan-notes" placeholder="请输入护理计划的补充说明..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step-navigation">
+                                <button class="nav-btn prev" onclick="prevStep()" style="display: none;">
+                                    <i class="fas fa-arrow-left"></i> 上一步
+                                </button>
+                                <button class="nav-btn next" onclick="nextStep()">
+                                    下一步 <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .care-plan-page {
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                }
+
+                .workflow-header {
+                    padding: 20px;
+                    background: white;
+                    border-bottom: 1px solid #eee;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .care-plan-layout {
+                    flex: 1;
+                    display: grid;
+                    grid-template-columns: 280px 1fr;
+                    gap: 20px;
+                    padding: 20px;
+                    overflow: hidden;
+                    min-height: 0; /* 重要：确保grid容器不会超出其父容器 */
+                }
+
+                .care-plan-sidebar {
+                    background: white;
+                    border-radius: 12px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                    overflow-y: auto;
+                    padding: 15px;
+                    height: 100%;
+                }
+
+                .care-plan-main {
+                    background: white;
+                    border-radius: 12px;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                }
+
+                .care-plan-form {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    padding: 20px 20px 0;
+                }
+
+                .step-content-container {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding-bottom: 20px;
+                }
+
+                .patient-overview {
+                    padding: 15px;
+                    border-bottom: 1px solid #eee;
+                }
+
+                .patient-basic-info h3 {
+                    margin: 0;
+                    color: var(--dark);
+                    font-size: 1.2rem;
+                }
+
+                .room-info {
+                    color: var(--gray);
+                    margin: 5px 0 10px;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .care-level-tag {
+                    background: rgba(33, 150, 243, 0.1);
+                    color: var(--primary);
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.85rem;
+                }
+
+                .patient-stats {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 8px;
+                    width: 100%;
+                }
+
+                .stat-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 6px 10px;
+                    background: var(--light);
+                    border-radius: 6px;
+                    font-size: 0.9rem;
+                }
+
+                .stat-item .label {
+                    color: var(--gray);
+                }
+
+                .stat-item .value {
+                    color: var(--dark);
+                    font-weight: 500;
+                }
+
+                .ai-analysis-panel {
+                    background: var(--light);
+                    border-radius: 12px;
+                    padding: 12px;
+                }
+
+                .panel-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 12px;
+                }
+
+                .panel-header i {
+                    color: var(--primary);
+                    font-size: 1.1rem;
+                }
+
+                .panel-header h3 {
+                    margin: 0;
+                    color: var(--dark);
+                    font-size: 1rem;
+                }
+
+                .analysis-section {
+                    margin-bottom: 12px;
+                }
+
+                .analysis-section:last-child {
+                    margin-bottom: 0;
+                }
+
+                .analysis-section h4 {
+                    color: var(--dark);
+                    margin: 0 0 8px;
+                    font-size: 0.95rem;
+                }
+
+                .analysis-section ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .analysis-section li {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    color: var(--gray);
+                    margin-bottom: 6px;
+                    font-size: 0.9rem;
+                }
+
+                .analysis-section li:last-child {
+                    margin-bottom: 0;
+                }
+
+                .analysis-section li i {
+                    font-size: 0.8rem;
+                    color: var(--primary);
+                }
+
+                .step-progress {
+                    margin-bottom: 30px;
+                }
+
+                .progress-bar {
+                    height: 4px;
+                    background: #eee;
+                    border-radius: 2px;
+                    margin-bottom: 20px;
+                    position: relative;
+                }
+
+                .progress {
+                    position: absolute;
+                    height: 100%;
+                    background: var(--primary);
+                    border-radius: 2px;
+                    transition: width 0.3s ease;
+                }
+
+                .step-indicators {
+                    display: flex;
+                    justify-content: space-between;
+                    position: relative;
+                }
+
+                .step {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                    position: relative;
+                    flex: 1;
+                }
+
+                .step-number {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    background: #eee;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--gray);
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+
+                .step span {
+                    color: var(--gray);
+                    font-size: 0.9rem;
+                    text-align: center;
+                }
+
+                .step.active .step-number {
+                    background: var(--primary);
+                    color: white;
+                }
+
+                .step.completed .step-number {
+                    background: #2ecc71;
+                    color: white;
+                }
+
+                .step.active span {
+                    color: var(--primary);
+                    font-weight: 500;
+                }
+
+                .step-content {
+                    display: none;
+                }
+
+                .step-content.active {
+                    display: block;
+                }
+
+                .step-navigation {
+                    padding: 15px 20px;
+                    background: white;
+                    border-top: 1px solid #eee;
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 10px;
+                }
+
+                .nav-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    border: none;
+                    font-size: 1rem;
+                }
+
+                .nav-btn.prev {
+                    background: var(--light);
+                    color: var(--gray);
+                }
+
+                .nav-btn.next {
+                    background: var(--primary);
+                    color: white;
+                    margin-left: auto;
+                }
+
+                .nav-btn:hover {
+                    transform: translateY(-2px);
+                }
+
+                @media (max-width: 1024px) {
+                    .care-plan-layout {
+                        grid-template-columns: 1fr;
+                        grid-template-rows: auto 1fr;
+                    }
+
+                    .care-plan-sidebar {
+                        max-height: 300px;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .step-indicators {
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+
+                    .step {
+                        flex: 0 0 calc(33.33% - 10px);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 初始化进度和步骤显示
+            currentStep = 1;
+            updateProgress();
+        }
+
+        function saveCarePlan() {
+            alert('护理计划已保存');
+            loadCarePlanWorkflow();
+        }
+
+        function loadHealthRecordsWorkflow() {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>健康档案</h2>
+                        <p>AI助手将协助您管理健康档案</p>
+                    </div>
+                </div>
+                <div class="workflow-body">
+                    <div class="patient-selection">
+                        <div class="section-header">
+                            <i class="fas fa-folder-open"></i>
+                            <h3>档案管理</h3>
+                        </div>
+                        <p class="section-desc">
+                            查看和管理老人的完整健康档案。<br>
+                            <span class="highlight">红色标记</span>表示需要更新的档案。
+                        </p>
+                    </div>
+                    <div class="workflow-content">
+                        <!-- 健康档案内容 -->
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示患者详情页面
+        function showPatientDetail(name, room) {
+            document.getElementById('workflow-view').innerHTML = `
+                <div class="workflow-header">
+                    <div class="workflow-title">
+                        <h2>${name} - ${room}室</h2>
+                        <p>患者诊疗详情</p>
+                    </div>
+                    <button class="action-btn btn-prev" onclick="loadOrdersWorkflow()">
+                        <i class="fas fa-arrow-left"></i> 返回列表
+                    </button>
+                </div>
+                <div class="workflow-body">
+                    <div class="ai-analysis">
+                        <div class="analysis-header">
+                            <div class="ai-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="analysis-title">
+                                <h3>AI诊疗助手分析</h3>
+                                <p>基于历史数据的智能分析和建议</p>
+                            </div>
+                        </div>
+                        <div class="analysis-content">
+                            <div class="vital-status">
+                                <h4>当前状况</h4>
+                                <div class="status-grid">
+                                    <div class="status-item warning">
+                                        <span class="label">血压</span>
+                                        <span class="value">160/95 mmHg</span>
+                                    </div>
+                                    <div class="status-item normal">
+                                        <span class="label">心率</span>
+                                        <span class="value">78 次/分</span>
+                                    </div>
+                                    <div class="status-item normal">
+                                        <span class="label">血氧</span>
+                                        <span class="value">98%</span>
+                                    </div>
+                                    <div class="status-item normal">
+                                        <span class="label">体温</span>
+                                        <span class="value">36.5°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-analysis">
+                                <h4>历史诊断记录</h4>
+                                <div class="history-timeline">
+                                    <div class="timeline-item">
+                                        <div class="time">2024-03-15</div>
+                                        <div class="content">
+                                            <h5>高血压复查</h5>
+                                            <p>血压：150/90 mmHg</p>
+                                            <p>用药：络活喜 5mg/天</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="time">2024-03-01</div>
+                                        <div class="content">
+                                            <h5>常规体检</h5>
+                                            <p>各项指标正常，建议继续服用降压药</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ai-suggestion">
+                                <h4>AI建议</h4>
+                                <div class="suggestion-content">
+                                    <p>1. 血压较前次升高，建议调整用药方案</p>
+                                    <p>2. 建议增加络活喜剂量至7.5mg/天</p>
+                                    <p>3. 一周后复查血压</p>
+                                    <p>4. 注意监测肾功能指标</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="treatment-panel">
+                        <div class="panel-header">
+                            <h3>治疗方案制定</h3>
+                            <button class="action-btn btn-primary" onclick="createPrescription()">
+                                <i class="fas fa-plus"></i> 开具处方
+                            </button>
+                        </div>
+                        <div class="treatment-options">
+                            <div class="option-card">
+                                <h4>用药方案</h4>
+                                <div class="medicine-form">
+                                    <div class="form-group">
+                                        <label>药品选择</label>
+                                        <select>
+                                            <option>络活喜 5mg</option>
+                                            <option>络活喜 7.5mg</option>
+                                            <option>倍他乐克 25mg</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>用药频次</label>
+                                        <select>
+                                            <option>每日一次</option>
+                                            <option>每日两次</option>
+                                            <option>每日三次</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>用药时间</label>
+                                        <select>
+                                            <option>餐后服用</option>
+                                            <option>餐前服用</option>
+                                            <option>睡前服用</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>用药周期</label>
+                                        <select>
+                                            <option>7天</option>
+                                            <option>14天</option>
+                                            <option>30天</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="option-card">
+                                <h4>生活建议</h4>
+                                <div class="advice-list">
+                                    <label class="advice-item">
+                                        <input type="checkbox"> 控制饮食盐分
+                                    </label>
+                                    <label class="advice-item">
+                                        <input type="checkbox"> 规律运动
+                                    </label>
+                                    <label class="advice-item">
+                                        <input type="checkbox"> 定时测量血压
+                                    </label>
+                                    <label class="advice-item">
+                                        <input type="checkbox"> 保持心情舒畅
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加患者详情页面的样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .ai-analysis {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+
+                .analysis-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                }
+
+                .ai-avatar {
+                    width: 50px;
+                    height: 50px;
+                    background: linear-gradient(135deg, var(--primary), var(--accent));
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .ai-avatar i {
+                    font-size: 1.5rem;
+                    color: white;
+                }
+
+                .analysis-title h3 {
+                    margin: 0;
+                    color: var(--dark);
+                }
+
+                .analysis-title p {
+                    margin: 5px 0 0;
+                    color: var(--gray);
+                    font-size: 0.9rem;
+                }
+
+                .vital-status {
+                    margin-bottom: 25px;
+                }
+
+                .vital-status h4, .history-analysis h4, .ai-suggestion h4 {
+                    color: var(--dark);
+                    margin-bottom: 15px;
+                }
+
+                .status-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 15px;
+                }
+
+                .status-item {
+                    background: var(--light);
+                    padding: 15px;
+                    border-radius: 10px;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .status-item .label {
+                    color: var(--gray);
+                    font-size: 0.9rem;
+                }
+
+                .status-item .value {
+                    color: var(--dark);
+                    font-size: 1.2rem;
+                    font-weight: 500;
+                }
+
+                .status-item.warning .value {
+                    color: #e74c3c;
+                }
+
+                .status-item.normal .value {
+                    color: #2ecc71;
+                }
+
+                .history-timeline {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                    margin-bottom: 25px;
+                }
+
+                .timeline-item {
+                    display: flex;
+                    gap: 15px;
+                }
+
+                .timeline-item .time {
+                    min-width: 100px;
+                    color: var(--gray);
+                    font-size: 0.9rem;
+                }
+
+                .timeline-item .content {
+                    background: var(--light);
+                    padding: 15px;
+                    border-radius: 10px;
+                    flex: 1;
+                }
+
+                .timeline-item .content h5 {
+                    margin: 0 0 8px;
+                    color: var(--dark);
+                }
+
+                .timeline-item .content p {
+                    margin: 5px 0;
+                    color: var(--gray);
+                    font-size: 0.9rem;
+                }
+
+                .ai-suggestion {
+                    background: rgba(33, 150, 243, 0.08);
+                    border-radius: 10px;
+                    padding: 15px;
+                }
+
+                .suggestion-content p {
+                    margin: 8px 0;
+                    color: var(--dark);
+                    font-size: 0.95rem;
+                }
+
+                .treatment-panel {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 20px;
+                }
+
+                .panel-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+
+                .panel-header h3 {
+                    margin: 0;
+                    color: var(--dark);
+                }
+
+                .btn-primary {
+                    background: var(--primary);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                }
+
+                .btn-primary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+                }
+
+                .treatment-options {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 15px;
+                }
+
+                .option-card {
+                    background: var(--light);
+                    border-radius: 10px;
+                    padding: 20px;
+                }
+
+                .option-card h4 {
+                    margin: 0 0 15px;
+                    color: var(--dark);
+                }
+
+                .medicine-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                .form-group label {
+                    color: var(--gray);
+                    font-size: 0.9rem;
+                }
+
+                .form-group select {
+                    padding: 8px;
+                    border: 1px solid #eee;
+                    border-radius: 6px;
+                    font-size: 0.95rem;
+                    color: var(--dark);
+                }
+
+                .advice-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+
+                .advice-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: var(--dark);
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                }
+
+                @media (max-width: 768px) {
+                    .timeline-item {
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                    .timeline-item .time {
+                        min-width: auto;
+                    }
+
+                    .treatment-options {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function createPrescription() {
+            // 实现开具处方的功能
+            alert('处方已保存');
+        }
+
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('stepProgress').style.width = `${progress}%`;
+
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNum = index + 1;
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+
+            const prevBtn = document.querySelector('.nav-btn.prev');
+            const nextBtn = document.querySelector('.nav-btn.next');
+
+            prevBtn.style.display = currentStep > 1 ? 'flex' : 'none';
+            
+            if (currentStep === totalSteps) {
+                nextBtn.innerHTML = '<i class="fas fa-check"></i> 确认提交';
+            } else {
+                nextBtn.innerHTML = '下一步 <i class="fas fa-arrow-right"></i>';
+            }
+
+            // Update step content visibility
+            document.querySelectorAll('.step-content').forEach((content, index) => {
+                if (index + 1 === currentStep) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            if (currentStep === totalSteps) {
+                generateSummary();
+            }
+
+            // Scroll to top of the new step content
+            const activeContent = document.querySelector('.step-content.active');
+            if (activeContent) {
+                activeContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateProgress();
+            } else {
+                submitCarePlan();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateProgress();
+            }
+        }
+
+        function generateSummary() {
+            const summaryContent = document.querySelector('.summary-content');
+            let summary = '<div class="summary-sections">';
+            
+            const basicCare = Array.from(document.querySelectorAll('input[name="basic-care"]:checked'))
+                .map(input => input.closest('.care-item-card').querySelector('span').textContent);
+            
+            const specialCare = Array.from(document.querySelectorAll('input[name="special-care"]:checked'))
+                .map(input => input.closest('.care-item-card').querySelector('span').textContent);
+            
+            const medications = Array.from(document.querySelectorAll('input[type="checkbox"][name$="-med"]:checked'))
+                .map(input => {
+                    const medItem = input.closest('.med-item');
+                    const name = medItem.querySelector('h4').textContent;
+                    const info = medItem.querySelector('p').textContent;
+                    return `${name} - ${info}`;
+                });
+            
+            const mentalCare = Array.from(document.querySelectorAll('input[name="mental-care"]:checked'))
+                .map(input => input.closest('.care-item-card').querySelector('span').textContent);
+
+            if (basicCare.length > 0) {
+                summary += `
+                    <div class="summary-section">
+                        <h5>基础护理</h5>
+                        <ul>${basicCare.map(item => `<li>${item}</li>`).join('')}</ul>
+                    </div>
+                `;
+            }
+
+            if (specialCare.length > 0) {
+                summary += `
+                    <div class="summary-section">
+                        <h5>专项护理</h5>
+                        <ul>${specialCare.map(item => `<li>${item}</li>`).join('')}</ul>
+                    </div>
+                `;
+            }
+
+            if (medications.length > 0) {
+                summary += `
+                    <div class="summary-section">
+                        <h5>用药计划</h5>
+                        <ul>${medications.map(item => `<li>${item}</li>`).join('')}</ul>
+                    </div>
+                `;
+            }
+
+            if (mentalCare.length > 0) {
+                summary += `
+                    <div class="summary-section">
+                        <h5>心理关怀</h5>
+                        <ul>${mentalCare.map(item => `<li>${item}</li>`).join('')}</ul>
+                    </div>
+                `;
+            }
+
+            summary += '</div>';
+            summaryContent.innerHTML = summary;
+        }
+
+        function submitCarePlan() {
+            alert('护理计划已提交！');
+        }
+
+        updateProgress();
+    </script>
+</body>
+</html> 

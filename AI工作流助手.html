@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>养老院管理系统 - AI助手</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #9b59b6;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --gray: #95a5a6;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --sidebar-width: 350px;
+        }
+
+        /* 角色选择器样式 */
+        .role-selector {
+            margin-top: 5px;
+        }
+        
+        .role-selector select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            background: white;
+            font-size: 0.95rem;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 120px;
+        }
+        
+        .role-selector select:hover {
+            border-color: var(--primary);
+        }
+        
+        .role-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* 为不同角色添加特定的颜色标识 */
+        .role-recorder { color: var(--primary); }
+        .role-nurse { color: #e74c3c; }
+        .role-doctor { color: #27ae60; }
+        .role-finance { color: #f39c12; }
+        .role-logistics { color: #8e44ad; }
+        .role-director { color: #2c3e50; }
+
+        /* 原有样式 */
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            gap: 20px;
+        }
+        
+        /* 头部样式优化 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 300px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+        
+        .logo-text p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .user-details {
+            text-align: right;
+        }
+        
+        .user-details .role {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 3px;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .ai-assistant {
+            flex: 0 0 var(--sidebar-width);
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-height: 0;
+        }
+        
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .assistant-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .assistant-avatar i {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .assistant-info h2 {
+            font-size: 1.4rem;
+            color: var(--dark);
+        }
+        
+        .assistant-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* 今日待办和工作入口 */
+        .todays-tasks {
+            margin-bottom: 25px;
+        }
+        
+        .todays-tasks h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            padding: 10px 15px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .task-item:hover {
+            background: rgba(52, 152, 219, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .task-item i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        /* 工作入口放在待办下方 */
+        .work-entries {
+            margin-top: 10px;
+        }
+        
+        .work-entries h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .entry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .entry-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .entry-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .entry-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .entry-card h5 {
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        /* 右侧工作流容器 */
+        .workflow-container {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* 初始欢迎界面 */
+        .welcome-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(46, 204, 113, 0.05));
+        }
+        
+        .welcome-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-icon i {
+            font-size: 4rem;
+            color: white;
+        }
+        
+        .welcome-message h2 {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-message p {
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, rgba(52, 152, 219, 0.2), transparent);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        /* 工作流界面（默认隐藏） */
+        .workflow-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+        
+        .workflow-title h2 {
+            color: var(--dark);
+            font-size: 1.6rem;
+        }
+        
+        .workflow-title p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            background: var(--light);
+            padding: 8px 15px;
+            border-radius: 30px;
+        }
+        
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        
+        .step-dot.active {
+            background: var(--secondary);
+        }
+        
+        .workflow-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        
+        .ai-guidance {
+            background: rgba(46, 204, 113, 0.08);
+            border-radius: 0 0 12px 12px;
+            padding: 20px;
+            border-left: 4px solid var(--secondary);
+            animation: slideIn 0.5s ease;
+        }
+        
+        .guidance-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .guidance-header i {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+        
+        .guidance-text {
+            line-height: 1.6;
+            color: var(--dark);
+        }
+        
+        .guidance-text .highlight {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .workflow-content {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .step-content-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step-title i {
+            color: var(--primary);
+        }
+        
+        /* 不同步骤的表单样式 */
+        .step-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-section h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-section h4 i {
+            color: var(--accent);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* 固定操作按钮 */
+        .workflow-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            border-top: 1px solid #eee;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+        
+        .action-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-prev {
+            background: white;
+            color: var(--dark);
+            border: 2px solid var(--gray);
+        }
+        
+        .btn-prev:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn-next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-next:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .btn-complete {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .ai-assistant {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+            
+            .step-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .user-info {
+                margin-left: 0;
+                text-align: center;
+            }
+            
+            .entry-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .workflow-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-home-heart"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>泸州AI智能养老平台</h1>
+                    <p>AI工作助手 · 提升工作效率</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">姚宁</div>
+                <div class="user-details">
+                    <div class="role-selector">
+                        <select id="role-switcher" onchange="switchRole(this.value)">
+                            <option value="recorder" selected>信息录入员</option>
+                            <option value="nurse">护理员</option>
+                            <option value="doctor">医生</option>
+                            <option value="finance">财务</option>
+                            
+                            <option value="director">院长</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="ai-assistant">
+                <div class="assistant-header">
+                    <div class="assistant-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="assistant-info">
+                        <h2>AI助手</h2>
+                        <p>您的智能工作助手</p>
+                    </div>
+                </div>
+                
+                <div class="todays-tasks">
+                    <h4><i class="fas fa-tasks"></i> 今日待办</h4>
+                    <ul class="task-list">
+                        <li class="task-item">
+                            <i class="fas fa-user-plus"></i>
+                            <span>录入新老人信息 (2人)</span>
+                        </li>
+                        <li class="task-item">
+                            <i class="fas fa-file-contract"></i>
+                            <span>更新3位老人合同信息</span>
+                        </li>
+                        <li class="task-item">
+                            <i class="fas fa-bed"></i>
+                            <span>处理房间调整申请 (5间)</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="work-entries">
+                    <h4><i class="fas fa-door-open"></i> 工作入口</h4>
+                    <div class="entry-grid">
+                        <div class="entry-card" id="elder-entry">
+                            <i class="fas fa-user-plus"></i>
+                            <h5>录入老人信息</h5>
+                        </div>
+                        <div class="entry-card">
+                            <i class="fas fa-file-medical"></i>
+                            <h5>健康档案管理</h5>
+                        </div>
+                        <div class="entry-card">
+                            <i class="fas fa-file-contract"></i>
+                            <h5>合同管理</h5>
+                        </div>
+                        <div class="entry-card">
+                            <i class="fas fa-bed"></i>
+                            <h5>房间与床位管理</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workflow-container">
+                <!-- 初始欢迎界面 -->
+                <div class="welcome-panel" id="welcome-panel">
+                    <div class="welcome-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="welcome-message">
+                        <h2>您好，姚宁！</h2>
+                        <p>欢迎使用泸州AI智能养老平台。我是您的AI工作助手，将引导及辅助您完成各项任务。</p>
+                        <p>请从左侧选择您要开始的工作，或者查看<span class="highlight">今日待办</span>任务列表。</p>
+                        <p>使用AI工作助手，系统操作学习时间可减少<span class="highlight">90%</span>，工作效率提升<span class="highlight">40%</span>。</p>
+                    </div>
+                </div>
+                
+                <!-- 工作流界面（默认隐藏） -->
+                <div class="workflow-view" id="workflow-view">
+                    <div class="workflow-header">
+                        <div class="workflow-title">
+                            <h2>新老人信息录入</h2>
+                            <p>AI助手将引导您完成老人信息录入流程</p>
+                        </div>
+                        <div class="step-indicator" id="step-indicator">
+                            <div class="step-dot active"></div>
+                            <div class="step-dot"></div>
+                            <div class="step-dot"></div>
+                            <div class="step-dot"></div>
+                            <div class="step-dot"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-body">
+                        <div class="ai-guidance" id="ai-guidance">
+                            <div class="guidance-header">
+                                <i class="fas fa-robot"></i>
+                                <h3>第一步：创建老人档案</h3>
+                            </div>
+                            <p class="guidance-text">请填写老人的<span class="highlight">基本信息</span>，包括姓名、身份证号、联系方式和紧急联系人。系统将根据身份证号自动计算年龄并验证信息准确性。<br>提示：请确保姓名与身份证信息一致，<span class="highlight">红色星号字段为必填项</span>。</p>
+                        </div>
+                        
+                        <div class="workflow-content">
+                            <div class="step-content-container" id="step-content">
+                                <div class="step-title">
+                                    <i class="fas fa-user-circle"></i>
+                                    <h3>老人基本信息</h3>
+                                </div>
+                                
+                                <div class="step-form" id="step1-form">
+                                    <div class="form-section">
+                                        <h4><i class="fas fa-id-card"></i> 身份信息</h4>
+                                        <div class="form-group">
+                                            <label for="elderName">姓名 <span style="color:red">*</span></label>
+                                            <input type="text" id="elderName" placeholder="请输入老人姓名">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="idNumber">身份证号 <span style="color:red">*</span></label>
+                                            <input type="text" id="idNumber" placeholder="请输入18位身份证号码">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>性别</label>
+                                            <select>
+                                                <option value="">请选择性别</option>
+                                                <option value="male">男</option>
+                                                <option value="female">女</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>出生日期</label>
+                                            <input type="date">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h4><i class="fas fa-phone"></i> 联系信息</h4>
+                                        <div class="form-group">
+                                            <label for="phone">联系电话 <span style="color:red">*</span></label>
+                                            <input type="tel" id="phone" placeholder="请输入联系电话">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="address">家庭住址</label>
+                                            <input type="text" id="address" placeholder="请输入详细住址">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="emergencyContact">紧急联系人 <span style="color:red">*</span></label>
+                                            <input type="text" id="emergencyContact" placeholder="请输入紧急联系人姓名">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="emergencyPhone">紧急联系电话</label>
+                                            <input type="tel" id="emergencyPhone" placeholder="请输入紧急联系电话">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-actions">
+                        <button class="action-btn btn-prev" id="prev-btn" disabled>
+                            <i class="fas fa-arrow-left"></i> 上一步
+                        </button>
+                        <button class="action-btn btn-next" id="next-btn">
+                            下一步 <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 角色切换功能
+        function switchRole(role) {
+            // 根据角色跳转到对应页面
+            const rolePages = {
+                'recorder': 'AI工作流助手.html',
+                'nurse': 'nurse.html',
+                'doctor': 'doctor.html',
+                'finance': 'finance.html',
+                'logistics': 'logistics.html',
+                'director': 'director.html'
+            };
+            
+            // 如果不是当前页面，则进行跳转
+            if (role !== 'recorder') {
+                window.location.href = rolePages[role];
+            }
+        }
+        // 初始化工作流步骤
+        const stepDots = document.querySelectorAll('.step-dot');
+        let currentStep = 1;
+        const maxSteps = stepDots.length;
+        const stepContent = document.getElementById('step-content');
+        const aiGuidance = document.getElementById('ai-guidance');
+        
+        // 步骤内容模板
+        const stepTemplates = {
+            1: `
+                <div class="step-title">
+                    <i class="fas fa-user-circle"></i>
+                    <h3>老人基本信息</h3>
+                </div>
+                
+                <div class="step-form">
+                    <div class="form-section">
+                        <h4><i class="fas fa-id-card"></i> 身份信息</h4>
+                        <div class="form-group">
+                            <label for="elderName">姓名 <span style="color:red">*</span></label>
+                            <input type="text" id="elderName" placeholder="请输入老人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="idNumber">身份证号 <span style="color:red">*</span></label>
+                            <input type="text" id="idNumber" placeholder="请输入18位身份证号码">
+                        </div>
+                        <div class="form-group">
+                            <label>性别</label>
+                            <select>
+                                <option value="">请选择性别</option>
+                                <option value="male">男</option>
+                                <option value="female">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>出生日期</label>
+                            <input type="date">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-phone"></i> 联系信息</h4>
+                        <div class="form-group">
+                            <label for="phone">联系电话 <span style="color:red">*</span></label>
+                            <input type="tel" id="phone" placeholder="请输入联系电话">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">家庭住址</label>
+                            <input type="text" id="address" placeholder="请输入详细住址">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergencyContact">紧急联系人 <span style="color:red">*</span></label>
+                            <input type="text" id="emergencyContact" placeholder="请输入紧急联系人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergencyPhone">紧急联系电话</label>
+                            <input type="tel" id="emergencyPhone" placeholder="请输入紧急联系电话">
+                        </div>
+                    </div>
+                </div>
+            `,
+            2: `
+                <div class="step-title">
+                    <i class="fas fa-heartbeat"></i>
+                    <h3>健康评估信息</h3>
+                </div>
+                
+                <div class="step-form">
+                    <div class="form-section">
+                        <h4><i class="fas fa-stethoscope"></i> 健康信息</h4>
+                        <div class="form-group">
+                            <label>护理等级</label>
+                            <select>
+                                <option value="">请选择护理等级</option>
+                                <option value="1">一级护理（自理）</option>
+                                <option value="2">二级护理（半自理）</option>
+                                <option value="3">三级护理（不能自理）</option>
+                                <option value="4">特级护理（专护）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>行动能力</label>
+                            <select>
+                                <option value="">请选择行动能力</option>
+                                <option value="good">正常行走</option>
+                                <option value="assist">需要辅助工具</option>
+                                <option value="wheelchair">需轮椅</option>
+                                <option value="bedridden">卧床</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>认知能力</label>
+                            <select>
+                                <option value="">请选择认知能力</option>
+                                <option value="normal">正常</option>
+                                <option value="mild">轻度认知障碍</option>
+                                <option value="moderate">中度认知障碍</option>
+                                <option value="severe">重度认知障碍</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-file-medical"></i> 医疗信息</h4>
+                        <div class="form-group">
+                            <label>主要疾病</label>
+                            <input type="text" placeholder="如高血压、糖尿病等">
+                        </div>
+                        <div class="form-group">
+                            <label>既往病史</label>
+                            <textarea rows="3" placeholder="请输入既往病史"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>药物过敏史</label>
+                            <textarea rows="2" placeholder="请输入药物过敏史"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `,
+            3: `
+                <div class="step-title">
+                    <i class="fas fa-bed"></i>
+                    <h3>房间分配信息</h3>
+                </div>
+                
+                <div class="step-form">
+                    <div class="form-section">
+                        <h4><i class="fas fa-map-marker-alt"></i> 区域选择</h4>
+                        <div class="form-group">
+                            <label>居住区域</label>
+                            <select>
+                                <option value="">请选择居住区域</option>
+                                <option value="a">A区（自理区）</option>
+                                <option value="b">B区（半自理区）</option>
+                                <option value="c">C区（特护区）</option>
+                                <option value="d">D区（认知症专区）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>楼层偏好</label>
+                            <select>
+                                <option value="">请选择楼层</option>
+                                <option value="1">1楼</option>
+                                <option value="2">2楼</option>
+                                <option value="3">3楼</option>
+                                <option value="4">4楼</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>房间类型</label>
+                            <select>
+                                <option value="">请选择房间类型</option>
+                                <option value="single">单人间</option>
+                                <option value="double">双人间</option>
+                                <option value="suite">套房</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-door-open"></i> 房间选择</h4>
+                        <div class="form-group">
+                            <label>推荐房间</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div style="border: 2px solid #3498db; border-radius: 8px; padding: 15px; text-align: center;">
+                                    <h5 style="margin-bottom: 5px;">302室</h5>
+                                    <p>单人间 · 3楼 · 朝阳</p>
+                                </div>
+                                <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center;">
+                                    <h5 style="margin-bottom: 5px;">215室</h5>
+                                    <p>双人间 · 2楼 · 安静</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>特殊要求</label>
+                            <textarea placeholder="如需要靠近护士站、需要无障碍设施等"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `,
+            4: `
+                <div class="step-title">
+                    <i class="fas fa-user-nurse"></i>
+                    <h3>护理方案设置</h3>
+                </div>
+                
+                <div class="step-form">
+                    <div class="form-section">
+                        <h4><i class="fas fa-clipboard-list"></i> 日常护理</h4>
+                        <div class="form-group">
+                            <label>饮食护理</label>
+                            <select>
+                                <option value="">请选择饮食护理等级</option>
+                                <option value="self">自理</option>
+                                <option value="assist">协助进食</option>
+                                <option value="feed">喂食</option>
+                                <option value="special">特殊饮食</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>个人卫生</label>
+                            <select>
+                                <option value="">请选择卫生护理等级</option>
+                                <option value="self">自理</option>
+                                <option value="assist">部分协助</option>
+                                <option value="full">完全协助</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>活动安排</label>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px;">
+                                    <input type="checkbox"> 晨间活动
+                                </label>
+                                <label style="display: block; margin-bottom: 5px;">
+                                    <input type="checkbox"> 康复训练
+                                </label>
+                                <label style="display: block; margin-bottom: 5px;">
+                                    <input type="checkbox"> 社交活动
+                                </label>
+                                <label style="display: block;">
+                                    <input type="checkbox"> 娱乐活动
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-file-medical-alt"></i> 医疗护理</h4>
+                        <div class="form-group">
+                            <label>服药管理</label>
+                            <select>
+                                <option value="">请选择服药管理方式</option>
+                                <option value="self">自理</option>
+                                <option value="remind">提醒服药</option>
+                                <option value="assist">协助服药</option>
+                                <option value="nurse">护士给药</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>健康监测频率</label>
+                            <select>
+                                <option value="">请选择监测频率</option>
+                                <option value="daily">每日一次</option>
+                                <option value="twice">每日两次</option>
+                                <option value="weekly">每周两次</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>特殊护理需求</label>
+                            <textarea rows="3" placeholder="如伤口护理、导管护理等"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `,
+            5: `
+                <div class="step-title">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>信息确认与完成</h3>
+                </div>
+                
+                <div class="step-form">
+                    <div class="form-section">
+                        <h4><i class="fas fa-file-contract"></i> 合同信息</h4>
+                        <div class="form-group">
+                            <label>合同类型</label>
+                            <select>
+                                <option value="">请选择合同类型</option>
+                                <option value="trial">试住合同（1个月）</option>
+                                <option value="short">短期合同（6个月）</option>
+                                <option value="year">年度合同</option>
+                                <option value="long">长期合同</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>费用套餐</label>
+                            <select>
+                                <option value="">请选择费用套餐</option>
+                                <option value="basic">基础套餐</option>
+                                <option value="standard">标准套餐</option>
+                                <option value="premium">高级套餐</option>
+                                <option value="custom">定制套餐</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>付款方式</label>
+                            <select>
+                                <option value="">请选择付款方式</option>
+                                <option value="monthly">月付</option>
+                                <option value="quarter">季付</option>
+                                <option value="half">半年付</option>
+                                <option value="yearly">年付</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-info-circle"></i> 信息确认</h4>
+                        <div class="form-group">
+                            <label>入住日期</label>
+                            <input type="date">
+                        </div>
+                        <div class="form-group">
+                            <label>紧急联系人确认</label>
+                            <div style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                                <p><strong>张伟</strong> (儿子)</p>
+                                <p>电话: 138****5678</p>
+                                <p>关系: 父子</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>最终确认</label>
+                            <div>
+                                <label style="display: block; margin-bottom: 10px;">
+                                    <input type="checkbox"> 我已核对所有信息准确无误
+                                </label>
+                                <label style="display: block;">
+                                    <input type="checkbox"> 已向家属说明入住须知
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+        
+        // 更新步骤指示器
+        function updateStepIndicator() {
+            stepDots.forEach((dot, index) => {
+                if (index < currentStep) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+        
+        // 更新工作流内容
+        function updateWorkflowContent() {
+            aiGuidance.innerHTML = getGuidanceContent(currentStep);
+            stepContent.innerHTML = stepTemplates[currentStep];
+            
+            // 添加动画效果
+            aiGuidance.style.animation = 'none';
+            stepContent.style.animation = 'none';
+            setTimeout(() => {
+                aiGuidance.style.animation = 'slideIn 0.5s ease';
+                stepContent.style.animation = 'fadeIn 0.5s ease';
+            }, 10);
+        }
+        
+        // 获取指导内容
+        function getGuidanceContent(step) {
+            switch(step) {
+                case 1:
+                    return `
+                        <div class="guidance-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>第一步：创建老人档案</h3>
+                        </div>
+                        <p class="guidance-text">请填写老人的<span class="highlight">基本信息</span>，包括姓名、身份证号、联系方式和紧急联系人。系统将根据身份证号自动计算年龄并验证信息准确性。<br>提示：请确保姓名与身份证信息一致，<span class="highlight">红色星号字段为必填项</span>。</p>
+                    `;
+                case 2:
+                    return `
+                        <div class="guidance-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>第二步：健康评估</h3>
+                        </div>
+                        <p class="guidance-text">请填写老人的<span class="highlight">健康信息</span>，包括护理等级、行动能力和医疗需求。<br>提示：准确评估健康状态有助于我们为老人提供合适的护理服务。<span class="highlight">系统已根据基本信息推荐护理等级</span>。</p>
+                    `;
+                case 3:
+                    return `
+                        <div class="guidance-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>第三步：分配房间</h3>
+                        </div>
+                        <p class="guidance-text">请为老人<span class="highlight">分配合适的房间和床位</span>。系统根据老人的护理等级和健康状况推荐了几个选项。<br>提示：请考虑老人的活动能力、特殊需求（如靠近洗手间）和偏好（如朝阳房间）。</p>
+                    `;
+                case 4:
+                    return `
+                        <div class="guidance-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>第四步：设置护理方案</h3>
+                        </div>
+                        <p class="guidance-text">请根据老人情况<span class="highlight">设置护理等级和护理方案</span>。系统已根据健康评估给出初步建议。<br>提示：护理等级将影响服务内容和费用，请与家属充分沟通确认。</p>
+                    `;
+                case 5:
+                    return `
+                        <div class="guidance-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>第五步：完成入住流程</h3>
+                        </div>
+                        <p class="guidance-text">请<span class="highlight">确认所有信息</span>并生成入住合同。系统将自动创建老人档案并通知护理团队。<br>提示：请仔细核对所有信息，确认无误后完成流程。您可以为老人打印入住指南和房间信息。</p>
+                    `;
+            }
+        }
+        
+        // 下一步按钮功能
+        document.getElementById('next-btn').addEventListener('click', function() {
+            if (currentStep < maxSteps) {
+                currentStep++;
+                updateStepIndicator();
+                updateWorkflowContent();
+                
+                // 启用上一步按钮
+                document.getElementById('prev-btn').disabled = false;
+                
+                // 如果是最后一步，更改按钮文本
+                if (currentStep === maxSteps) {
+                    this.innerHTML = '完成录入 <i class="fas fa-check"></i>';
+                    this.classList.remove('btn-next');
+                    this.classList.add('btn-complete');
+                }
+            } else {
+                // 完成工作流
+                alert('老人信息录入完成！已成功保存到系统。');
+                resetWorkflow();
+                showWelcomePanel();
+            }
+        });
+        
+        // 上一步按钮功能
+        document.getElementById('prev-btn').addEventListener('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepIndicator();
+                updateWorkflowContent();
+                
+                // 如果是第一步，禁用上一步按钮
+                if (currentStep === 1) {
+                    this.disabled = true;
+                }
+                
+                // 恢复下一步按钮样式
+                const nextBtn = document.getElementById('next-btn');
+                nextBtn.innerHTML = '下一步 <i class="fas fa-arrow-right"></i>';
+                nextBtn.classList.remove('btn-complete');
+                nextBtn.classList.add('btn-next');
+            }
+        });
+        
+        // 重置工作流
+        function resetWorkflow() {
+            currentStep = 1;
+            updateStepIndicator();
+            document.getElementById('prev-btn').disabled = true;
+        }
+        
+        // 显示欢迎面板
+        function showWelcomePanel() {
+            document.getElementById('welcome-panel').style.display = 'flex';
+            document.getElementById('workflow-view').style.display = 'none';
+        }
+        
+        // 显示工作流
+        function showWorkflow() {
+            document.getElementById('welcome-panel').style.display = 'none';
+            document.getElementById('workflow-view').style.display = 'flex';
+            resetWorkflow();
+            updateWorkflowContent();
+        }
+        
+        // 工作入口点击事件
+        document.getElementById('elder-entry').addEventListener('click', function() {
+            showWorkflow();
+            
+            // 更新AI助手消息
+            document.querySelector('.assistant-info p').textContent = "正在引导：新老人信息录入";
+        });
+        
+        // 初始化
+        updateStepIndicator();
+    </script>
+</body>
+</html>

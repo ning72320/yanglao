@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>养老院管理系统 - 核心场景演示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .scenario-card {
+            transition: all 0.3s ease;
+        }
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .message-bubble {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- 场景选择页面 -->
+    <div id="scenario-selection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-white mb-4">🏥 智慧养老院管理系统</h1>
+                <p class="text-xl text-white/80">AI引导式对话演示 </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- 护理人员场景 -->
+                <div class="scenario-card bg-white rounded-3xl p-8 text-center cursor-pointer" onclick="startScenario('nurse')">
+                    <div class="w-20 h-20 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-user-nurse text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">护理人员</h3>
+                    <p class="text-gray-600 mb-6">记录老人健康数据</p>
+                    <div class="bg-green-50 rounded-xl p-4 text-left">
+                        <p class="text-sm text-green-800 font-medium mb-2">演示流程：</p>
+                        <ul class="text-xs text-green-700 space-y-1">
+                            <li>• 选择老人</li>
+                            <li>• 记录体温</li>
+                            <li>• 记录血压</li>
+                            <li>• 保存数据</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 后勤人员场景 -->
+                <div class="scenario-card bg-white rounded-3xl p-8 text-center cursor-pointer" onclick="startScenario('logistics')">
+                    <div class="w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-boxes text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">后勤人员</h3>
+                    <p class="text-gray-600 mb-6">申请物资采购</p>
+                    <div class="bg-blue-50 rounded-xl p-4 text-left">
+                        <p class="text-sm text-blue-800 font-medium mb-2">演示流程：</p>
+                        <ul class="text-xs text-blue-700 space-y-1">
+                            <li>• 选择物资类型</li>
+                            <li>• 确定采购数量</li>
+                            <li>• 选择到货时间</li>
+                            <li>• 提交申请</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 管理员场景 -->
+                <div class="scenario-card bg-white rounded-3xl p-8 text-center cursor-pointer" onclick="startScenario('admin')">
+                    <div class="w-20 h-20 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-line text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">管理员</h3>
+                    <p class="text-gray-600 mb-6">查询费用账单</p>
+                    <div class="bg-purple-50 rounded-xl p-4 text-left">
+                        <p class="text-sm text-purple-800 font-medium mb-2">演示流程：</p>
+                        <ul class="text-xs text-purple-700 space-y-1">
+                            <li>• 选择查询老人</li>
+                            <li>• 选择时间段</li>
+                            <li>• 查看费用明细</li>
+                            <li>• 显示总计金额</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <p class="text-white/60 text-sm">点击任意场景卡片开始AI引导式对话演示</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 对话演示页面 -->
+    <div id="chat-demo" class="hidden min-h-screen flex flex-col">
+        <!-- 顶部导航 -->
+        <div class="bg-white/10 backdrop-blur-sm p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <i class="fas fa-robot text-blue-500"></i>
+                </div>
+                <div class="text-white">
+                    <h2 class="font-semibold">AI助手小智</h2>
+                    <p class="text-sm opacity-80" id="scenario-title">场景演示</p>
+                </div>
+            </div>
+            <button onclick="backToSelection()" class="text-white/80 hover:text-white">
+                <i class="fas fa-arrow-left text-lg"></i>
+            </button>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="flex-1 p-4 overflow-y-auto" id="demo-messages">
+            <!-- 消息将在这里动态添加 -->
+        </div>
+
+        <!-- 选项区域 -->
+        <div class="p-4 bg-white/10 backdrop-blur-sm" id="demo-options">
+            <!-- 选项按钮将在这里动态添加 -->
+        </div>
+    </div>
+
+    <script>
+        let currentScenario = null;
+        let demoStep = 0;
+        let demoData = {};
+
+        // 场景配置
+        const scenarios = {
+            nurse: {
+                title: '护理人员 - 记录健康数据',
+                userName: '李护士',
+                steps: [
+                    {
+                        ai: '您好，护理人员 李护士！我是AI助手小智。您现在要记录老人的健康数据吗？',
+                        options: [
+                            { text: '是的，我要记录健康数据', next: 1 }
+                        ]
+                    },
+                    {
+                        ai: '好的，请选择您要记录健康数据的老人：',
+                        options: [
+                            { text: '张三 (101房间)', data: { name: '张三', room: '101' }, next: 2 },
+                            { text: '李四 (102房间)', data: { name: '李四', room: '102' }, next: 2 },
+                            { text: '王五 (103房间)', data: { name: '王五', room: '103' }, next: 2 }
+                        ]
+                    },
+                    {
+                        ai: '好的，请输入{name}的体温：',
+                        options: [
+                            { text: '36.0 度', data: { temperature: '36.0' }, next: 3 },
+                            { text: '36.5 度', data: { temperature: '36.5' }, next: 3 },
+                            { text: '37.0 度', data: { temperature: '37.0' }, next: 3 },
+                            { text: '37.5 度', data: { temperature: '37.5' }, next: 3 }
+                        ]
+                    },
+                    {
+                        ai: '请问{name}的血压是多少：',
+                        options: [
+                            { text: '110/70', data: { bloodPressure: '110/70' }, next: 4 },
+                            { text: '120/80', data: { bloodPressure: '120/80' }, next: 4 },
+                            { text: '130/90', data: { bloodPressure: '130/90' }, next: 4 },
+                            { text: '140/95', data: { bloodPressure: '140/95' }, next: 4 }
+                        ]
+                    },
+                    {
+                        ai: '已成功记录{name}的健康数据！\n\n📊 记录详情：\n体温：{temperature}°C\n血压：{bloodPressure}\n记录时间：{time}',
+                        options: [
+                            { text: '继续记录其他老人', next: 1 },
+                            { text: '返回主菜单', next: 'end' }
+                        ]
+                    }
+                ]
+            },
+            logistics: {
+                title: '后勤人员 - 申请物资采购',
+                userName: '王师傅',
+                steps: [
+                    {
+                        ai: '您好，后勤人员 王师傅！我是AI助手小智。您现在要申请采购物资吗？',
+                        options: [
+                            { text: '是的，我要申请采购', next: 1 }
+                        ]
+                    },
+                    {
+                        ai: '好的，请选择您要采购的物资类型：',
+                        options: [
+                            { text: '床单', data: { supplyType: '床单' }, next: 2 },
+                            { text: '被罩', data: { supplyType: '被罩' }, next: 2 },
+                            { text: '其他', data: { supplyType: '其他' }, next: 2 }
+                        ]
+                    },
+                    {
+                        ai: '您要采购多少{supplyType}？',
+                        options: [
+                            { text: '10 件', data: { quantity: '10' }, next: 3 },
+                            { text: '20 件', data: { quantity: '20' }, next: 3 },
+                            { text: '30 件', data: { quantity: '30' }, next: 3 },
+                            { text: '50 件', data: { quantity: '50' }, next: 3 }
+                        ]
+                    },
+                    {
+                        ai: '好的，请选择预计到货时间：',
+                        options: [
+                            { text: '2025年6月1日', data: { deliveryDate: '2025年6月1日' }, next: 4 },
+                            { text: '2025年6月15日', data: { deliveryDate: '2025年6月15日' }, next: 4 },
+                            { text: '2025年6月30日', data: { deliveryDate: '2025年6月30日' }, next: 4 }
+                        ]
+                    },
+                    {
+                        ai: '采购申请已提交成功！\n\n📋 申请详情：\n物资类型：{supplyType}\n采购数量：{quantity}件\n预计到货：{deliveryDate}\n申请编号：{requestId}\n状态：待审批',
+                        options: [
+                            { text: '继续申请其他物资', next: 1 },
+                            { text: '返回主菜单', next: 'end' }
+                        ]
+                    }
+                ]
+            },
+            admin: {
+                title: '管理员 - 查询费用账单',
+                userName: '张主任',
+                steps: [
+                    {
+                        ai: '您好，管理员 张主任！我是AI助手小智。您现在要查询老人的费用账单吗？',
+                        options: [
+                            { text: '是的，我要查询账单', next: 1 }
+                        ]
+                    },
+                    {
+                        ai: '好的，请选择您要查询费用的老人：',
+                        options: [
+                            { text: '张三 (101房间)', data: { name: '张三', room: '101' }, next: 2 },
+                            { text: '李四 (102房间)', data: { name: '李四', room: '102' }, next: 2 },
+                            { text: '王五 (103房间)', data: { name: '王五', room: '103' }, next: 2 }
+                        ]
+                    },
+                    {
+                        ai: '您要查询哪个时间段的费用？',
+                        options: [
+                            { text: '2025年4月', data: { period: '2025年4月', accommodation: 3000, nursing: 2000, meals: 800 }, next: 3 },
+                            { text: '2025年5月', data: { period: '2025年5月', accommodation: 3000, nursing: 2000, meals: 800 }, next: 3 },
+                            { text: '2025年6月', data: { period: '2025年6月', accommodation: 3000, nursing: 2000, meals: 800 }, next: 3 }
+                        ]
+                    },
+                    {
+                        ai: '正在查询中，请稍等……',
+                        options: [],
+                        autoNext: 4,
+                        delay: 2000
+                    },
+                    {
+                        ai: '{name} {period}的费用账单如下：\n\n💰 费用明细：\n住宿费：{accommodation}元\n护理费：{nursing}元\n餐饮费：{meals}元\n\n总计：{total}元',
+                        options: [
+                            { text: '查询其他老人账单', next: 1 },
+                            { text: '返回主菜单', next: 'end' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // 开始场景演示
+        function startScenario(scenarioType) {
+            currentScenario = scenarioType;
+            demoStep = 0;
+            demoData = {};
+
+            document.getElementById('scenario-selection').classList.add('hidden');
+            document.getElementById('chat-demo').classList.remove('hidden');
+            document.getElementById('scenario-title').textContent = scenarios[scenarioType].title;
+
+            // 清空聊天记录
+            document.getElementById('demo-messages').innerHTML = '';
+            document.getElementById('demo-options').innerHTML = '';
+
+            // 开始第一步
+            executeStep();
+        }
+
+        // 返回场景选择
+        function backToSelection() {
+            document.getElementById('chat-demo').classList.add('hidden');
+            document.getElementById('scenario-selection').classList.remove('hidden');
+            currentScenario = null;
+            demoStep = 0;
+            demoData = {};
+        }
+
+        // 执行当前步骤
+        function executeStep() {
+            const scenario = scenarios[currentScenario];
+            const step = scenario.steps[demoStep];
+
+            if (!step) return;
+
+            // 处理AI消息中的变量替换
+            let aiMessage = step.ai;
+            for (const [key, value] of Object.entries(demoData)) {
+                aiMessage = aiMessage.replace(new RegExp(`{${key}}`, 'g'), value);
+            }
+
+            // 特殊处理
+            if (aiMessage.includes('{time}')) {
+                aiMessage = aiMessage.replace('{time}', new Date().toLocaleString());
+            }
+            if (aiMessage.includes('{requestId}')) {
+                aiMessage = aiMessage.replace('{requestId}', Date.now());
+            }
+            if (aiMessage.includes('{total}')) {
+                const total = (demoData.accommodation || 0) + (demoData.nursing || 0) + (demoData.meals || 0);
+                aiMessage = aiMessage.replace('{total}', total);
+            }
+
+            // 添加AI消息
+            addDemoMessage('ai', aiMessage);
+
+            // 显示选项或自动进入下一步
+            if (step.autoNext) {
+                setTimeout(() => {
+                    demoStep = step.autoNext;
+                    executeStep();
+                }, step.delay || 1000);
+            } else {
+                setTimeout(() => {
+                    showDemoOptions(step.options);
+                }, 500);
+            }
+        }
+
+        // 添加演示消息
+        function addDemoMessage(sender, text) {
+            const messagesContainer = document.getElementById('demo-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-bubble mb-4 ${sender === 'ai' ? 'flex' : 'flex justify-end'}`;
+            
+            const bubbleClass = sender === 'ai' 
+                ? 'bg-white text-gray-800 rounded-2xl rounded-tl-sm p-4 max-w-sm shadow-lg'
+                : 'bg-blue-500 text-white rounded-2xl rounded-tr-sm p-4 max-w-sm shadow-lg';
+            
+            messageDiv.innerHTML = `
+                <div class="${bubbleClass}">
+                    ${sender === 'ai' ? '<i class="fas fa-robot text-blue-500 mr-2"></i>' : ''}
+                    <div class="whitespace-pre-line">${text}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 显示演示选项
+        function showDemoOptions(options) {
+            const container = document.getElementById('demo-options');
+            container.innerHTML = '';
+            
+            if (options.length === 0) return;
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'grid gap-2';
+            
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'bg-white/20 backdrop-blur-sm text-white p-3 rounded-xl text-left hover:bg-white/30 transition-all';
+                button.innerHTML = `
+                    <span class="font-medium">${index + 1}. ${option.text}</span>
+                `;
+                button.onclick = () => handleDemoOption(option);
+                optionsDiv.appendChild(button);
+            });
+            
+            container.appendChild(optionsDiv);
+        }
+
+        // 处理演示选项点击
+        function handleDemoOption(option) {
+            // 添加用户选择的消息
+            addDemoMessage('user', option.text);
+            
+            // 清空选项
+            document.getElementById('demo-options').innerHTML = '';
+            
+            // 保存选择的数据
+            if (option.data) {
+                Object.assign(demoData, option.data);
+            }
+            
+            // 进入下一步
+            setTimeout(() => {
+                if (option.next === 'end') {
+                    setTimeout(() => {
+                        addDemoMessage('ai', '演示完成！感谢您的体验。您可以返回选择其他场景或重新开始。');
+                        setTimeout(() => {
+                            showDemoOptions([
+                                { text: '返回场景选择', action: 'back' },
+                                { text: '重新开始当前场景', action: 'restart' }
+                            ]);
+                        }, 1000);
+                    }, 1000);
+                } else {
+                    demoStep = option.next;
+                    executeStep();
+                }
+            }, 500);
+        }
+
+        // 处理特殊操作
+        function handleDemoOption(option) {
+            if (option.action === 'back') {
+                backToSelection();
+                return;
+            } else if (option.action === 'restart') {
+                startScenario(currentScenario);
+                return;
+            }
+
+            // 原有逻辑
+            addDemoMessage('user', option.text);
+            document.getElementById('demo-options').innerHTML = '';
+            
+            if (option.data) {
+                Object.assign(demoData, option.data);
+            }
+            
+            setTimeout(() => {
+                if (option.next === 'end') {
+                    setTimeout(() => {
+                        addDemoMessage('ai', '演示完成！感谢您的体验。您可以返回选择其他场景或重新开始。');
+                        setTimeout(() => {
+                            showDemoOptions([
+                                { text: '返回场景选择', action: 'back' },
+                                { text: '重新开始当前场景', action: 'restart' }
+                            ]);
+                        }, 1000);
+                    }, 1000);
+                } else {
+                    demoStep = option.next;
+                    executeStep();
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>养老院管理系统 - 院长工作台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="care-plan.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --accent: #2ecc71;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --light: #f5f6fa;
+            --danger: #e74c3c;
+            --card-bg: #ffffff;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .logo-text p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .role-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--dark);
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .role-selector select:focus {
+            border-color: var(--primary);
+        }
+
+        /* 主要布局 */
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+            height: calc(100vh - 90px); /* 增加主内容区域的高度 */
+        }
+
+        /* AI助手区域 */
+        .ai-assistant {
+            flex: 0 0 var(--sidebar-width);
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 100%;
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .assistant-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .assistant-avatar i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .assistant-info h2 {
+            font-size: 1.4rem;
+            color: var(--dark);
+        }
+
+        .assistant-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .assistant-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* 自定义滚动条样式 */
+        .assistant-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .assistant-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .assistant-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        /* 欢迎界面样式 */
+        .welcome-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(46, 204, 113, 0.05));
+        }
+
+        .welcome-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-icon i {
+            font-size: 4rem;
+            color: white;
+        }
+
+        .welcome-message h2 {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-message p {
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(52, 152, 219, 0.2), transparent);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* 今日概览 */
+        .todays-overview {
+            margin-bottom: 25px;
+        }
+
+        .todays-overview h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .overview-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .overview-item {
+            padding: 12px 15px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .overview-item:hover {
+            background: rgba(52, 152, 219, 0.15);
+            transform: translateX(5px);
+        }
+
+        .overview-item i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .overview-item .status {
+            margin-left: auto;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .status.warning {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .status.success {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        .status.info {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        /* 快捷入口 */
+        .quick-access {
+            margin-top: 10px;
+        }
+
+        .quick-access h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .access-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .access-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .access-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .access-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .access-card h5 {
+            color: var(--dark);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* 右侧工作区域 */
+        .dashboard-container {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 数据概览卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-icon.residents {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .stat-icon.revenue {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        .stat-icon.satisfaction {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+
+        .stat-icon.occupancy {
+            background: rgba(241, 196, 15, 0.1);
+            color: #f1c40f;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 5px 0;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+
+        .trend-up {
+            color: #2ecc71;
+        }
+
+        .trend-down {
+            color: #e74c3c;
+        }
+
+        /* 图表区域 */
+        .charts-section {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .ai-assistant {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .access-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 今日概况 */
+        .overview-dashboard {
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .overview-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .overview-title i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .overview-title h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .overview-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .charts-row {
+            display: flex;
+            gap: 15px;
+            height: 180px; /* 减小上方图表高度 */
+            margin-bottom: 15px; /* 减小底部间距 */
+            flex-shrink: 0;
+        }
+
+        .chart-box {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* 防止flex子项溢出 */
+        }
+
+        .chart-box h4 {
+            margin: 0 0 8px;
+            color: var(--dark);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .chart-box h4 i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: calc(100% - 25px);
+        }
+
+        .overview-bottom {
+            display: flex;
+            gap: 20px;
+            height: calc(100% - 195px); /* 自动计算剩余高度 */
+            min-height: 250px;
+        }
+
+        .source-box, .analysis-box {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .source-box h4, .analysis-box h4 {
+            margin: 0 0 15px;
+            color: var(--dark);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .source-box .chart-container {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 100px; /* 为图例预留空间 */
+        }
+
+        .analysis-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+            margin: -5px; /* 抵消内边距 */
+            padding: 5px;
+        }
+
+        .analysis-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .analysis-point:last-child {
+            margin-bottom: 0;
+        }
+
+        .analysis-point i {
+            font-size: 1.1rem;
+            padding-top: 3px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .analysis-point p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--dark);
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .text-success { color: #2ecc71; }
+        .text-warning { color: #f1c40f; }
+        .text-primary { color: #3498db; }
+
+        .source-chart {
+            height: 200px;
+            margin-top: 10px;
+        }
+
+        /* 运营分析样式 */
+        .operations-dashboard {
+            padding: 20px;
+            display: none;
+        }
+
+        .operations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .operations-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .operations-title i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .operations-title h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .metrics-grid {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            flex-wrap: nowrap;
+        }
+
+        .metric-card {
+            flex: 1 1 0;
+            min-width: 0;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .metric-header > div {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .metric-title {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .metric-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 5px 0;
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+        }
+
+        .metric-chart {
+            height: 40px;
+            margin-top: 10px;
+        }
+
+        .ai-analysis {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-analysis-header i {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .ai-analysis-header h3 {
+            margin: 0;
+            color: var(--dark);
+            font-size: 1.3rem;
+        }
+
+        .analysis-points {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .analysis-point {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .point-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .point-icon.positive {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        .point-icon.negative {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .point-icon.suggestion {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .point-content h4 {
+            margin: 0 0 5px;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .point-content p {
+            margin: 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-hospital-user"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>泸州AI智能养老平台</h1>
+                    <p>院长工作台 · 智能管理</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="role-selector">
+                        <select id="role-switcher" onchange="switchRole(this.value)">
+                            <option value="nurse">护理员</option>
+                            <option value="recorder">信息录入员</option>
+                            <option value="doctor">医生</option>
+                            <option value="finance">财务</option>
+                            <option value="director" selected>院长</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 左侧AI助手区域 -->
+            <div class="ai-assistant">
+                <div class="assistant-header">
+                    <div class="assistant-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="assistant-info">
+                        <h2>AI助手</h2>
+                        <p>您的智能管理助手</p>
+                    </div>
+                </div>
+
+                <div class="assistant-content">
+                    <div class="todays-overview">
+                        <h4><i class="fas fa-chart-line"></i> 今日概览</h4>
+                        <ul class="overview-list">
+                            <li class="overview-item">
+                                <i class="fas fa-user-plus"></i>
+                                <span>新入住申请</span>
+                                <span class="status info">3位</span>
+                            </li>
+                            <li class="overview-item">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>紧急事件</span>
+                                <span class="status warning">2起</span>
+                            </li>
+                            <li class="overview-item">
+                                <i class="fas fa-comments"></i>
+                                <span>家属反馈</span>
+                                <span class="status info">5条</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="quick-access">
+                        <h4><i class="fas fa-th-large"></i> 快捷入口</h4>
+                        <div class="access-grid">
+                            <div class="access-card" onclick="showDashboard('operations')">
+                                <i class="fas fa-chart-pie"></i>
+                                <h5>运营分析</h5>
+                            </div>
+                            <div class="access-card" onclick="showDashboard('overview')">
+                                <i class="fas fa-calendar-day"></i>
+                                <h5>今日概况</h5>
+                            </div>
+                            <div class="access-card" onclick="showDashboard('staff')">
+                                <i class="fas fa-users"></i>
+                                <h5>人员管理</h5>
+                            </div>
+                            <div class="access-card" onclick="showDashboard('reports')">
+                                <i class="fas fa-file-alt"></i>
+                                <h5>统计报表</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧工作区域 -->
+            <div class="dashboard-container">
+                <!-- 欢迎界面 -->
+                <div class="welcome-panel" id="welcome-panel">
+                    <div class="welcome-icon">
+                        <i class="fas fa-hospital-user"></i>
+                    </div>
+                    <div class="welcome-message">
+                        <h2>欢迎使用院长工作台！</h2>
+                        <p>我是您的AI管理助手，将协助您进行养老院的整体运营管理。</p>
+                        <p>今日有<span class="highlight">3位新入住申请</span>和<span class="highlight">2起紧急事件</span>需要您的关注。</p>
+                        <p>本月运营数据显示，入住率<span class="highlight">87.3%</span>，满意度达到<span class="highlight">94.5%</span>。</p>
+                    </div>
+                </div>
+
+                <!-- 今日概况 -->
+                <div class="overview-dashboard" id="overview-dashboard" style="display: none;">
+                    <div class="overview-header">
+                        <div class="overview-title">
+                            <i class="fas fa-calendar-day"></i>
+                            <h2>今日概况</h2>
+                        </div>
+                        <div class="time-filter">
+                            <button class="active">今日</button>
+                            <button>本周</button>
+                            <button>本月</button>
+                        </div>
+                    </div>
+
+                    <div class="overview-content">
+                        <div class="charts-row">
+                            <div class="chart-box">
+                                <h4><i class="fas fa-clipboard-list"></i> 今日业务</h4>
+                                <div class="chart-container">
+                                    <canvas id="businessChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-box">
+                                <h4><i class="fas fa-bed"></i> 床位状态</h4>
+                                <div class="chart-container">
+                                    <canvas id="bedStatusChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-box">
+                                <h4><i class="fas fa-phone"></i> 销售跟进</h4>
+                                <div class="chart-container">
+                                    <canvas id="salesFollowChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-box">
+                                <h4><i class="fas fa-chart-line"></i> 本月业绩</h4>
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overview-bottom">
+                            <div class="source-box">
+                                <h4><i class="fas fa-chart-pie"></i> 客户来源分析</h4>
+                                <div class="chart-container">
+                                    <canvas id="customerSourceChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="analysis-box">
+                                <h4><i class="fas fa-robot"></i> AI 分析建议</h4>
+                                <div class="analysis-content">
+                                    <div class="analysis-point">
+                                        <i class="fas fa-arrow-up text-success"></i>
+                                        <p>今日新增咨询12人，较昨日增长20%，建议重点跟进意向度高的3位客户</p>
+                                    </div>
+                                    <div class="analysis-point">
+                                        <i class="fas fa-exclamation-circle text-warning"></i>
+                                        <p>当前有5张床位待退床，请及时安排清理消毒，为新入住做准备</p>
+                                    </div>
+                                    <div class="analysis-point">
+                                        <i class="fas fa-lightbulb text-primary"></i>
+                                        <p>有6位客户待回访，建议优先联系计划入住时间在本周的3位</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 运营分析界面 -->
+                <div class="operations-dashboard" id="operations-dashboard" style="display: none;">
+                    <div class="operations-header">
+                        <div class="operations-title">
+                            <i class="fas fa-chart-pie"></i>
+                            <h2>运营分析</h2>
+                        </div>
+                        <div class="time-filter">
+                            <button>月度</button>
+                            <button class="active">季度</button>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div>
+                                    <h3 class="metric-title">入住率</h3>
+                                    <div class="metric-value">87.3%</div>
+                                    <div class="metric-trend trend-down">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <span>较上月 -0.5%</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="occupancyTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div>
+                                    <h3 class="metric-title">月度收入</h3>
+                                    <div class="metric-value">¥892,500</div>
+                                    <div class="metric-trend trend-up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>较上月 +5.8%</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-yuan-sign"></i>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="revenueTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div>
+                                    <h3 class="metric-title">运营成本</h3>
+                                    <div class="metric-value">¥654,300</div>
+                                    <div class="metric-trend trend-up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>较上月 +2.3%</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="costTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div>
+                                    <h3 class="metric-title">满意度评分</h3>
+                                    <div class="metric-value">94.5%</div>
+                                    <div class="metric-trend trend-up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>较上月 +1.2%</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-smile"></i>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="satisfactionTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div>
+                                    <h3 class="metric-title">事件发生率</h3>
+                                    <div class="metric-value">1.2%</div>
+                                    <div class="metric-trend trend-down">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <span>较上月 -0.3%</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="incidentTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-analysis">
+                        <div class="ai-analysis-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>AI 分析建议</h3>
+                        </div>
+                        <div class="analysis-content">
+                            <p>基于当前运营数据，AI助手为您提供以下分析和建议：</p>
+                            <div class="analysis-points">
+                                <div class="analysis-point">
+                                    <div class="point-icon positive">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="point-content">
+                                        <h4>收入增长显著</h4>
+                                        <p>月度收入增长5.8%，主要得益于新增高端护理服务和餐饮服务升级。建议继续优化服务项目，提升附加值。</p>
+                                    </div>
+                                </div>
+
+                                <div class="analysis-point">
+                                    <div class="point-icon negative">
+                                        <i class="fas fa-exclamation"></i>
+                                    </div>
+                                    <div class="point-content">
+                                        <h4>入住率略有下降</h4>
+                                        <p>入住率下降0.5%，建议加强市场推广，特别是针对节假日期间的特色服务包装，提高潜在客户转化率。</p>
+                                    </div>
+                                </div>
+
+                                <div class="analysis-point">
+                                    <div class="point-icon suggestion">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <div class="point-content">
+                                        <h4>成本优化空间</h4>
+                                        <p>运营成本增长2.3%，主要来自能源消耗和物资采购。建议实施智能化能源管理系统，优化采购流程，预计可降低3-5%成本。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他仪表板内容 -->
+                <div class="dashboard-content" id="dashboard-content" style="display: none;">
+                    <!-- 其他仪表板的内容 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function switchRole(role) {
+            const rolePages = {
+                'nurse': 'nurse.html',
+                'recorder': 'AI工作流助手.html',
+                'doctor': 'doctor.html',
+                'finance': 'finance.html',
+                'director': 'director.html'
+            };
+            
+            if (role !== 'director') {
+                window.location.href = rolePages[role];
+            }
+        }
+
+        // 初始化图表
+        function initCharts() {
+            // 收入趋势图表
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '月度收入',
+                        data: [820000, 845000, 860000, 878000, 885000, 892500],
+                        borderColor: '#3498db',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 护理质量评分图表
+            const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+            new Chart(qualityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['生活护理', '医疗护理', '康复训练', '心理关怀', '营养配餐'],
+                    datasets: [{
+                        label: '评分',
+                        data: [95, 93, 92, 96, 94],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.6)',
+                            'rgba(46, 204, 113, 0.6)',
+                            'rgba(155, 89, 182, 0.6)',
+                            'rgba(241, 196, 15, 0.6)',
+                            'rgba(230, 126, 34, 0.6)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 显示不同的仪表板内容
+        function showDashboard(type) {
+            const welcomePanel = document.getElementById('welcome-panel');
+            const dashboardContent = document.getElementById('dashboard-content');
+            const overviewDashboard = document.getElementById('overview-dashboard');
+            const operationsDashboard = document.getElementById('operations-dashboard');
+            
+            welcomePanel.style.display = 'none';
+            dashboardContent.style.display = 'none';
+            overviewDashboard.style.display = 'none';
+            operationsDashboard.style.display = 'none';
+            
+            if (type === 'overview') {
+                overviewDashboard.style.display = 'block';
+                // 使用setTimeout确保DOM完全渲染后再初始化图表
+                setTimeout(() => {
+                    initOverviewCharts();
+                }, 100);
+            } else if (type === 'operations') {
+                operationsDashboard.style.display = 'block';
+                initOperationsCharts();
+            } else {
+                dashboardContent.style.display = 'block';
+            }
+        }
+
+        // 初始化客户来源分析图表
+        function initCustomerSourceChart() {
+            const ctx = document.getElementById('customerSourceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['网络推广', '户外广告', '老客户推荐', '社区合作', '其他'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: ['#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#95a5a6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    layout: {
+                        padding: {
+                            right: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            align: 'center',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 12,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化运营分析图表
+        function initOperationsCharts() {
+            const chartConfigs = {
+                occupancyTrendChart: {
+                    data: [85, 86, 87, 88, 87.5, 87.3],
+                    color: '#3498db'
+                },
+                revenueTrendChart: {
+                    data: [850000, 865000, 875000, 880000, 885000, 892500],
+                    color: '#2ecc71'
+                },
+                costTrendChart: {
+                    data: [620000, 625000, 635000, 645000, 650000, 654300],
+                    color: '#e74c3c'
+                },
+                satisfactionTrendChart: {
+                    data: [92, 92.5, 93, 93.5, 94, 94.5],
+                    color: '#9b59b6'
+                },
+                incidentTrendChart: {
+                    data: [1.8, 1.6, 1.5, 1.4, 1.3, 1.2],
+                    color: '#f1c40f'
+                }
+            };
+
+            Object.entries(chartConfigs).forEach(([chartId, config]) => {
+                const ctx = document.getElementById(chartId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            data: config.data,
+                            borderColor: config.color,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: false
+                            },
+                            y: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // 初始化今日概况图表
+        function initOverviewCharts() {
+            const commonOptions = {
+                type: 'doughnut',
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 8,
+                                font: {
+                                    size: 10.5 /* 稍微调整字体大小 */
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            // 今日业务饼图
+            new Chart(document.getElementById('businessChart').getContext('2d'), {
+                ...commonOptions,
+                data: {
+                    labels: ['新增咨询', '新增预定', '新增合同', '合同到期'],
+                    datasets: [{
+                        data: [12, 5, 3, 2],
+                        backgroundColor: ['#3498db', '#2ecc71', '#9b59b6', '#e67e22']
+                    }]
+                }
+            });
+
+            // 床位状态饼图
+            new Chart(document.getElementById('bedStatusChart').getContext('2d'), {
+                ...commonOptions,
+                data: {
+                    labels: ['空闲房间', '空闲床位', '待退房', '待退床'],
+                    datasets: [{
+                        data: [15, 28, 3, 5],
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f1c40f']
+                    }]
+                }
+            });
+
+            // 销售跟进饼图
+            new Chart(document.getElementById('salesFollowChart').getContext('2d'), {
+                ...commonOptions,
+                data: {
+                    labels: ['应回访', '已回访', '待回访', '回收客户'],
+                    datasets: [{
+                        data: [18, 12, 6, 8],
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#95a5a6']
+                    }]
+                }
+            });
+
+            // 本月业绩饼图
+            new Chart(document.getElementById('performanceChart').getContext('2d'), {
+                ...commonOptions,
+                data: {
+                    labels: ['已签约', '跟进中', '已流失'],
+                    datasets: [{
+                        data: [42, 86, 28],
+                        backgroundColor: ['#2ecc71', '#3498db', '#e74c3c']
+                    }]
+                }
+            });
+
+            // 客户来源分析饼图
+            new Chart(document.getElementById('customerSourceChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['网络推广', '户外广告', '老客户推荐', '社区合作', '其他'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: ['#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#95a5a6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    layout: {
+                        padding: {
+                            right: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            align: 'center',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 12,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            initCustomerSourceChart();
+            // 显示欢迎面板
+            document.getElementById('welcome-panel').style.display = 'flex';
+        });
+    </script>
+</body>
+</html> 

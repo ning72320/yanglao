@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>助餐服务详情 - 养老平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+        .ai-assistant {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+        .action-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .voice-btn {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .warm-shadow {
+            box-shadow: 0 4px 20px rgba(252, 182, 159, 0.3);
+        }
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: translateX(-2px);
+        }
+        .service-image {
+            background: url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=200&fit=crop') center/cover;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- 状态栏 -->
+    <div class="flex justify-between items-center px-4 py-2 text-sm">
+        <div class="flex items-center space-x-1">
+            <div class="w-1 h-1 bg-black rounded-full"></div>
+            <div class="w-1 h-1 bg-black rounded-full"></div>
+            <div class="w-1 h-1 bg-black rounded-full"></div>
+            <span class="ml-2 font-medium">中国移动</span>
+        </div>
+        <div class="font-bold">9:41</div>
+        <div class="flex items-center space-x-1">
+            <i class="fas fa-signal text-xs"></i>
+            <i class="fas fa-wifi text-xs"></i>
+            <div class="w-6 h-3 border border-black rounded-sm">
+                <div class="w-4 h-2 bg-green-500 rounded-sm m-0.5"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="px-4 py-3">
+        <button onclick="goBack()" class="back-btn flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+            <i class="fas fa-chevron-left text-lg"></i>
+            <span class="text-base font-medium">返回</span>
+        </button>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="px-4 pb-20">
+        <!-- AI智能体助手区域 -->
+        <div class="ai-assistant rounded-3xl p-6 mb-6 warm-shadow relative">
+            <div class="flex items-start justify-between">
+                <!-- AI助手头像和信息 -->
+                <div class="flex items-start space-x-4">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=64&h=64&fit=crop&crop=face" 
+                             alt="AI助手" class="w-14 h-14 rounded-full object-cover">
+                    </div>
+                    <div class="flex-1 text-white">
+                        <h2 class="text-lg font-bold mb-1">小康助手</h2>
+                        <p class="text-sm opacity-90">为您详细介绍服务内容</p>
+                    </div>
+                </div>
+                
+                <!-- 语音按钮 -->
+                <button class="voice-btn w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white shadow-lg" onclick="startVoice()">
+                    <i class="fas fa-microphone text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- AI对话区域 -->
+        <div class="bg-white rounded-2xl p-5 mb-6 shadow-lg">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-pink-400 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-gray-800 text-lg leading-relaxed font-medium">
+                        这是我们的<span class="text-orange-500 font-bold">助餐服务</span>详情，您可以选择以下操作：
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务详情卡片 -->
+        <div class="bg-white rounded-3xl shadow-lg overflow-hidden mb-6">
+            <!-- 服务图片 -->
+            <div class="service-image h-48 relative">
+                <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+                <div class="absolute bottom-4 left-4 text-white">
+                    <h2 class="text-2xl font-bold mb-1">助餐服务</h2>
+                    <p class="text-sm opacity-90">营养配餐，送餐到家</p>
+                </div>
+                <div class="absolute top-4 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    4.8分 ⭐
+                </div>
+            </div>
+
+            <!-- 服务信息 -->
+            <div class="p-6">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-clock text-orange-500 text-lg"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">送达时间</p>
+                        <p class="font-semibold text-gray-800">30分钟</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-leaf text-green-500 text-lg"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">营养健康</p>
+                        <p class="font-semibold text-gray-800">低盐少油</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-shield-alt text-blue-500 text-lg"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">安全保障</p>
+                        <p class="font-semibold text-gray-800">食品安全</p>
+                    </div>
+                </div>
+
+                <!-- 服务特色 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">服务特色</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">专业营养师搭配，适合老年人饮食</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">新鲜食材，当日制作当日配送</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">支持定制菜单，照顾特殊饮食需求</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-700">配送员经过专业培训，服务贴心</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 价格信息 -->
+                <div class="bg-orange-50 rounded-2xl p-4 mb-6">
+                    <h3 class="text-lg font-bold text-orange-800 mb-3">价格说明</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">单次配餐</span>
+                            <span class="font-semibold text-orange-600">￥25-35</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">周套餐（7次）</span>
+                            <span class="font-semibold text-orange-600">￥160</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">月套餐（30次）</span>
+                            <span class="font-semibold text-orange-600">￥650</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作选项 -->
+        <div class="space-y-4">
+            <!-- 立即预约 -->
+            <div class="action-card bg-white rounded-2xl p-6 cursor-pointer" onclick="bookNow()">
+                <div class="flex items-center space-x-5">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-calendar-plus text-white text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">立即预约</h3>
+                        <p class="text-gray-600 text-base">选择时间，马上预约服务</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-lg"></i>
+                </div>
+            </div>
+
+            <!-- 查看菜单 -->
+            <div class="action-card bg-white rounded-2xl p-6 cursor-pointer" onclick="viewMenu()">
+                <div class="flex items-center space-x-5">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-list text-white text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">查看菜单</h3>
+                        <p class="text-gray-600 text-base">了解详细菜品和营养搭配</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-lg"></i>
+                </div>
+            </div>
+
+            <!-- 推荐服务 -->
+            <div class="action-card bg-white rounded-2xl p-6 cursor-pointer" onclick="viewRecommend()">
+                <div class="flex items-center space-x-5">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-lightbulb text-white text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">推荐服务</h3>
+                        <p class="text-gray-600 text-base">为您推荐相关优质服务</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户评价 -->
+        <div class="bg-white rounded-2xl p-6 mt-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">用户评价</h3>
+            <div class="space-y-4">
+                <div class="border-l-4 border-green-400 pl-4">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                        <span class="font-medium text-gray-800">王奶奶</span>
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">饭菜很合我口味，送餐师傅也很贴心，会提醒我趁热吃。</p>
+                </div>
+                <div class="border-l-4 border-blue-400 pl-4">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                        <span class="font-medium text-gray-800">张爷爷</span>
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">营养搭配很好，比外面的外卖健康多了，价格也实惠。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around items-center">
+            <button class="flex flex-col items-center space-y-1 py-2 px-4 text-orange-500" onclick="goHome()">
+                <i class="fas fa-concierge-bell text-xl"></i>
+                <span class="text-xs font-medium">服务</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 py-2 px-4 text-gray-400" onclick="goToProfile()">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs font-medium">我的</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 获取URL参数
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // 页面加载时更新服务名称
+        window.addEventListener('load', function() {
+            const serviceName = getUrlParameter('service') || '助餐';
+            document.title = serviceName + '服务详情 - 养老平台';
+            
+            // 更新页面中的服务名称
+            const serviceTitle = document.querySelector('.service-image h2');
+            if (serviceTitle) serviceTitle.textContent = serviceName + '服务';
+            
+            // 更新AI对话内容
+            const aiMessage = document.querySelector('.bg-white.rounded-2xl p');
+            if (aiMessage) {
+                const messageText = aiMessage.querySelector('p');
+                messageText.innerHTML = `这是我们的<span class="text-orange-500 font-bold">${serviceName}服务</span>详情，您可以选择以下操作：`;
+            }
+        });
+
+        // 返回上一页
+        function goBack() {
+            window.location.href = 'category.html';
+        }
+
+        // 回到首页
+        function goHome() {
+            window.location.href = 'service.html';
+        }
+
+        // 语音交互
+        function startVoice() {
+            alert('语音功能启动中...\n您可以说："我要预约明天中午的助餐服务"');
+        }
+
+        // 立即预约
+        function bookNow() {
+            window.location.href = 'booking.html?service=' + encodeURIComponent(getUrlParameter('service') || '助餐');
+        }
+
+        // 查看菜单
+        function viewMenu() {
+            alert('跳转到菜单详情页面');
+        }
+
+        // 查看推荐
+        function viewRecommend() {
+            alert('为您推荐相关服务：\n• 助洁服务\n• 健康监测\n• 用药提醒');
+        }
+
+        // 跳转到个人页面
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.action-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html> 
