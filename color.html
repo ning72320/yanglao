@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>颜色识别</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #2d2a5d 0%, #3a3a7c 30%, #4a6cb7 60%, #4a9ed8 85%, #4acfe3 100%);
+      color: #fff;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      overflow: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 80px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .header {
+      width: 100%;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      color: #fff;
+      text-align: center;
+      font-weight: 600;
+      margin: 0;
+      flex: 1;
+    }
+
+    .stats {
+      display: none;
+      gap: 1rem;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 500;
+      min-width: 200px;
+    }
+
+    .timer {
+      display: none;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      min-width: 80px;
+    }
+
+    .game-banner {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 1rem auto 2rem;
+      text-align: center;
+    }
+
+    #game-content {
+      width: 100%;
+      max-width: 500px;
+      padding: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .white-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 0 0 1.5rem 0;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      color: #333;
+    }
+
+    .rules-title {
+      font-size: 1.3rem;
+      color: #444;
+      text-align: center;
+      margin: 0 0 1rem 0;
+      font-weight: bold;
+    }
+
+    .rules-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      text-align: center;
+      color: #333;
+    }
+
+    .start-button {
+      background: #ffde59;
+      color: #333;
+      border: none;
+      border-radius: 50px;
+      padding: 1rem 3rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 1.5rem auto;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+    }
+
+    .start-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --success-color: #4CAF50;
+      --error-color: #f72585;
+      --bg-color: #f8f9fa;
+      --text-color: #2b2d42;
+      --card-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .game-frame {
+      background: rgba(255, 255, 255, 0.1);
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-top: -1rem;
+      position: relative;
+      z-index: 1;
+      display: none;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      min-height: 200px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .hex-card {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      margin: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .hex-card:active {
+      transform: scale(0.95);
+    }
+
+    .hex-bg {
+      width: 100%;
+      height: 100%;
+      background: white;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #333;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .points {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      border-radius: 50px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.9rem;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #timer {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    #countdown {
+      font-size: 200px;
+      font-weight: bold;
+      color: #FFFFFF;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+      z-index: 101;
+      animation: countdownAnim 0.5s ease-out;
+      display: none;
+      text-align: center;
+    }
+
+    @keyframes countdownAnim {
+      0% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .start-text {
+      font-size: 160px !important;
+      letter-spacing: 10px;
+    }
+
+    .blur-background {
+      filter: blur(8px);
+      pointer-events: none;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+
+    #feedbackSymbol {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 120px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      animation: fadeInOut 0.5s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .start-flash {
+      animation: glowPulse 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      0% { color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); transform: scale(1); }
+      100% { color: #ffde59; text-shadow: 0 0 30px rgba(255, 222, 89, 0.8); transform: scale(1.2); }
+    }
+
+    @media (max-width: 768px) {
+      .hex-card {
+        width: 100px;
+        height: 100px;
+      }
+
+      .hex-bg {
+        font-size: 1.5rem;
+      }
+
+      #countdown {
+        font-size: 80px;
+      }
+
+      #feedbackSymbol {
+        font-size: 80px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hex-card {
+        width: 80px;
+        height: 80px;
+      }
+
+      .hex-bg {
+        font-size: 1.2rem;
+      }
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      text-align: center;
+      margin: 0.5rem 0 0;
+      font-weight: 500;
+    }
+
+    .score-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .score-title {
+      font-size: 2rem;
+      color: #2d2a5d;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+
+    .score-card {
+      background: #f8f9fa;
+      border-radius: 20px;
+      padding: 3rem;
+      width: 100%;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .score-number {
+      font-size: 4rem;
+      color: #2d2a5d;
+      font-weight: bold;
+    }
+
+    .score-unit {
+      font-size: 2rem;
+      color: #2d2a5d;
+    }
+
+    .score-button {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .replay-button {
+      background: #e8f0fe;
+      color: #333;
+    }
+
+    .next-button {
+      background: #4361ee;
+      color: white;
+    }
+
+    .score-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .answer-buttons {
+      display: none;
+      width: 100%;
+      max-width: 500px;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 0 1rem;
+      box-sizing: border-box;
+    }
+
+    .answer-button {
+      flex: 1;
+      padding: 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .answer-button:active {
+      transform: scale(0.95);
+    }
+
+    .no-button {
+      background: #f72585;
+      color: white;
+    }
+
+    .yes-button {
+      background: #4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="stats">
+        <span>得分：<span id="score">0</span></span>
+        <span>题数：<span id="questions">0</span></span>
+      </div>
+      <h1 class="title">灵活性训练</h1>
+      <div class="timer" id="timer">90s</div>
+    </header>
+
+    <div id="game-content">
+      <div class="white-card">
+        <h2 class="rules-title">颜色识别</h2>
+        <p class="rules-text">
+          在这个挑战中，你需要判断左边文字的含义是否等于右边文字的颜色。<br>
+          点击下方按钮来回答：<br>
+          🟢 点击"相同"按钮表示左边文字的含义等于右边文字的颜色<br>
+          🔴 点击"不同"按钮表示左边文字的含义不等于右边文字的颜色<br>
+          你有90秒的时间，看看能答对多少题！
+        </p>
+      </div>
+      <button id="startBtn" class="start-button">开始游戏</button>
+    </div>
+
+    <div id="game" class="game-frame">
+      <div class="hex-card">
+        <div id="leftWord" class="hex-bg">红色</div>
+      </div>
+      <div class="hex-card">
+        <div id="rightWord" class="hex-bg" style="color: blue">绿色</div>
+      </div>
+    </div>
+
+    <div id="answer-buttons" class="answer-buttons">
+      <button class="answer-button no-button" onclick="handleAnswer(false)">不同</button>
+      <button class="answer-button yes-button" onclick="handleAnswer(true)">相同</button>
+    </div>
+
+    <div id="score-screen" class="score-screen">
+      <h2 class="score-title">颜色识别</h2>
+      <div class="score-card">
+        <span class="score-number" id="final-score">500</span>
+        <span class="score-unit">分</span>
+      </div>
+      <button class="score-button replay-button" onclick="location.reload()">再玩一次</button>
+      <button class="score-button next-button">进入下一个游戏</button>
+    </div>
+
+    <div id="countdown"></div>
+    <div id="feedbackSymbol"></div>
+  </div>
+
+  <script>
+    const colors = ["红色", "绿色", "蓝色", "黄色", "紫色"];
+    const colorMap = {
+      红色: "#f44336",
+      绿色: "#4caf50",
+      蓝色: "#2196f3",
+      黄色: "#ffeb3b",
+      紫色: "#9c27b0",
+    };
+
+    let score = 0;
+    let questionsAttempted = 0;
+    let correctMatch = false;
+    let gameTimer;
+    let gameDuration = 90;
+    let isGameRunning = false;
+
+    const startBtn = document.getElementById("startBtn");
+    const game = document.getElementById("game");
+    const gameContent = document.getElementById("game-content");
+    const leftWord = document.getElementById("leftWord");
+    const rightWord = document.getElementById("rightWord");
+    const scoreDisplay = document.getElementById("score");
+    const questionsDisplay = document.getElementById("questions");
+    const timerDisplay = document.getElementById("timer");
+    const feedbackSymbol = document.getElementById("feedbackSymbol");
+    const countdown = document.getElementById("countdown");
+
+    function startGame() {
+      // Hide header immediately when clicking start
+      document.querySelector('.header').style.display = 'none';
+      
+      showCountdown(() => {
+        score = 0;
+        questionsAttempted = 0;
+        isGameRunning = true;
+        game.style.display = "flex";
+        document.getElementById('answer-buttons').style.display = "flex";
+        // Show header with only stats and timer when game starts
+        document.querySelector('.header').style.display = 'flex';
+        document.querySelector('.title').style.display = 'none';
+        document.querySelector('.stats').style.display = "flex";
+        document.querySelector('.timer').style.display = "block";
+        updateStats();
+        nextRound();
+        startCountdown();
+      });
+    }
+
+    function showCountdown(callback) {
+      gameContent.style.display = "none";
+      game.style.display = "none";
+      
+      let count = 3;
+      countdown.style.display = "block";
+      countdown.textContent = count;
+
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count === 0) {
+          clearInterval(countdownInterval);
+          countdown.style.display = "none";
+          callback();
+        } else {
+          countdown.textContent = count;
+        }
+      }, 1000);
+    }
+
+    function startCountdown() {
+      let timeLeft = gameDuration;
+      timerDisplay.textContent = `${timeLeft}s`;
+
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `${timeLeft}s`;
+        if (timeLeft <= 10) {
+          timerDisplay.style.color = "#f72585";
+        }
+        if (timeLeft <= 0) {
+          clearInterval(gameTimer);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function nextRound() {
+      correctMatch = Math.random() < 0.5;
+      const leftText = colors[Math.floor(Math.random() * colors.length)];
+      let rightText, rightColor;
+
+      if (correctMatch) {
+        rightText = colors[Math.floor(Math.random() * colors.length)];
+        rightColor = leftText;
+      } else {
+        do {
+          rightColor = colors[Math.floor(Math.random() * colors.length)];
+        } while (colorMap[rightColor] === colorMap[leftText]);
+        rightText = colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      leftWord.textContent = leftText;
+      rightWord.textContent = rightText;
+      rightWord.style.color = colorMap[rightColor];
+    }
+
+    function handleAnswer(isMatch) {
+      if (!isGameRunning) return;
+      questionsAttempted++;
+
+      const isCorrect = isMatch === correctMatch;
+      if (isCorrect) {
+        score += 50;
+      }
+
+      showFeedbackSymbol(isCorrect);
+      updateStats();
+      nextRound();
+    }
+
+    function showFeedbackSymbol(isCorrect) {
+      feedbackSymbol.textContent = isCorrect ? "✔" : "✖";
+      feedbackSymbol.style.color = isCorrect ? "#4CAF50" : "#f72585";
+      feedbackSymbol.style.display = "block";
+      setTimeout(() => {
+        feedbackSymbol.style.display = "none";
+      }, 500);
+    }
+
+    function updateStats() {
+      scoreDisplay.textContent = score;
+      questionsDisplay.textContent = questionsAttempted;
+    }
+
+    function endGame() {
+      isGameRunning = false;
+      game.style.display = "none";
+      gameContent.style.display = "none";
+      document.querySelector('.header').style.display = 'none';
+      
+      // Show score screen
+      const scoreScreen = document.getElementById('score-screen');
+      const finalScore = document.getElementById('final-score');
+      scoreScreen.style.display = 'flex';
+      finalScore.textContent = score;
+    }
+
+    startBtn.addEventListener("click", startGame);
+
+    document.addEventListener("keydown", (e) => {
+      if (!isGameRunning) return;
+      if (e.key === "ArrowRight") {
+        handleAnswer(true);
+      } else if (e.key === "ArrowLeft") {
+        handleAnswer(false);
+      }
+    });
+  </script>
+</body>
+</html>
